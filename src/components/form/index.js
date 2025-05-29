@@ -1,14 +1,43 @@
 'use client';
 
-import { Modalities } from '../../../public/data/modalities';
-import { Operators } from '../../../public/data/operators';
-import { Interveners } from '../../../public/data/interveners';
-import { areas } from '../../../public/data/areas';
-import { typeOfIntervention } from '../../../public/data/typeOfInterventions';
-import { jurisdictions } from '../../../public/data/jurisdictions';
-import { interveningJustices } from '../../../public/data/justice';
-import Loading from '../loading';
+import { modalitiesList } from '../../../public/data/modalities';
+import { operatorsList } from '../../../public/data/operators';
+import { intervenersList } from '../../../public/data/interveners';
+import { areasList } from '../../../public/data/areas';
+import { typesOfInterventionList } from '../../../public/data/typeOfInterventions';
+import { jurisdictionsList } from '../../../public/data/jurisdictions';
+import { justicesList } from '../../../public/data/justice';
 import ModalAlert from '../modalAlert';
+import AutocompleteInput from '../autocomplete';
+import InputText from '../inputs/inputText';
+import InputTime from '../inputs/inputTime';
+import InputDate from '../inputs/inputDate';
+import InputTextArea from '../inputs/textArea';
+import { Accordion, AccordionItem, Button, Link } from "@heroui/react";
+
+
+export const AnchorIcon = (props) => {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      height="24"
+      role="presentation"
+      viewBox="0 0 24 24"
+      width="24"
+      {...props}
+    >
+      <path
+        d="M8.465,11.293c1.133-1.133,3.109-1.133,4.242,0L13.414,12l1.414-1.414l-0.707-0.707c-0.943-0.944-2.199-1.465-3.535-1.465 S7.994,8.935,7.051,9.879L4.929,12c-1.948,1.949-1.948,5.122,0,7.071c0.975,0.975,2.255,1.462,3.535,1.462 c1.281,0,2.562-0.487,3.536-1.462l0.707-0.707l-1.414-1.414l-0.707,0.707c-1.17,1.167-3.073,1.169-4.243,0 c-1.169-1.17-1.169-3.073,0-4.243L8.465,11.293z"
+        fill="currentColor"
+      />
+      <path
+        d="M12,4.929l-0.707,0.707l1.414,1.414l0.707-0.707c1.169-1.167,3.072-1.169,4.243,0c1.169,1.17,1.169,3.073,0,4.243 l-2.122,2.121c-1.133,1.133-3.109,1.133-4.242,0L10.586,12l-1.414,1.414l0.707,0.707c0.943,0.944,2.199,1.465,3.535,1.465 s2.592-0.521,3.535-1.465L19.071,12c1.948-1.949,1.948-5.122,0-7.071C17.121,2.979,13.948,2.98,12,4.929z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
 
 export default function Excel({
   setForm,
@@ -20,18 +49,44 @@ export default function Excel({
   setDataObject,
   setFileName
 }) {
-  const formatDate = (date) => {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'justice' || name === 'fiscal' || name === 'secretariat') {
+    if (
+      name === "colabFirmHierarchy" ||
+      name === "colabFirmLp" ||
+      name === "colabFirmNames" ||
+      name === "colabFirmLastNames"
+    ) {
+      setForm({
+        ...form,
+        colaborationFirm: {
+          ...form.colaborationFirm,
+          [name]: value,
+        },
+      });
+      return;
+    }
+
+    if (
+      name === "colabWatchHierarchy" ||
+      name === "colabWatchLp" ||
+      name === "colabWatchNames" ||
+      name === "colabWatchLastNames"
+    ) {
+      setForm({
+        ...form,
+        colaborationWatch: {
+          ...form.colaborationWatch,
+          [name]: value,
+        },
+      });
+      return;
+    }
+    if (name === 'fiscal' || name === 'secretariat') {
       setForm({
         ...form,
         interveningJustice: {
@@ -46,13 +101,38 @@ export default function Excel({
     }
   };
 
+  const handleAutocompleteChange = (name, value) => {
+    if (name === 'justice') {
+      setForm({
+        ...form,
+        interveningJustice: {
+          ...form.interveningJustice,
+          [name]: value,
+        },
+      })
+      return;
+    } else {
+      setForm({
+        ...form,
+        [name]: value
+      })
+    }
+  }
+
+  const handleDateChange = (date) => {
+    setForm({
+      ...form,
+      eventDate: date
+    })
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     const formattedForm = {
       ...form,
-      eventDate: formatDate(form.eventDate),
+      eventDate: `${form.eventDate.day}-${form.eventDate.month}-${form.eventDate.year}`,
     };
 
     const res = await fetch(process.env.NEXT_PUBLIC_MODIFY_EXCEL_ROUTE, {
@@ -81,7 +161,21 @@ export default function Excel({
       area: '',
       typeOfIntervention: '',
       number: '',
-      eventDate: '',
+      colaborationFirm: {
+        colabFirmHierarchy: "",
+        colabFirmLp: "",
+        colabFirmNames: "",
+        colabFirmLastNames: ""
+      },
+      colaborationWatch: {
+        colabWatchHierarchy: "",
+        colabWatchLp: "",
+        colabWatchNames: "",
+        colabWatchLastNames: ""
+      },
+      cover: "",
+      summaryNum: "",
+      eventDate: null,
       callTime: '',
       direction: '',
       jurisdiction: '',
@@ -103,7 +197,7 @@ export default function Excel({
   };
 
   const isFormIncomplete = Object.entries(form).some(([key, value]) => {
-    const optionalFields = ['intervener', 'operator', 'interveningJustice', 'jurisdiction'];
+    const optionalFields = ['intervener', 'operator', 'interveningJustice', 'jurisdiction', "colaborationFirm", "colaborationWatch", "cover", "summaryNum"];
     if (optionalFields.includes(key)) return false;
     if (typeof value === 'string') return value.trim() === '';
     if (typeof value === 'object' && value !== null) {
@@ -117,227 +211,144 @@ export default function Excel({
       className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md"
       onSubmit={handleSubmit}
     >
-      <h2 className="text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
-
-      {/* GRUPO 1 */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label htmlFor="area" className="block text-sm font-medium text-white/80 mb-1">Área</label>
-          <select
-            name="area"
-            value={form.area}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {areas.map((area, i) => (
-              <option key={i} value={area} className="text-white bg-gray-900">{area}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="typeOfIntervention" className="block text-sm font-medium text-white/80 mb-1">Tipo</label>
-          <select
-            name="typeOfIntervention"
-            value={form.typeOfIntervention}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {typeOfIntervention.map((type, i) => (
-              <option key={i} value={type} className="text-white bg-gray-900">{type}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Nro / Nombre</label>
-          <input
-            type="text"
-            name="number"
-            value={form.number}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-      </section>
-
-      {/* GRUPO 2 */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Visualizador</label>
-          <select
-            name="operator"
-            value={form.operator}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {Operators.map(({ operator }, i) => (
-              <option key={i} value={operator} className="text-white bg-gray-900">{operator}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Interventor</label>
-          <select
-            name="intervener"
-            value={form.intervener}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {Interveners.map(({ intervener }, i) => (
-              <option key={i} value={intervener} className="text-white bg-gray-900">{intervener}</option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      {/* GRUPO 3 */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Lugar</label>
-          <input
-            type="text"
-            name="direction"
-            value={form.direction}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Fecha del hecho</label>
-          <input
-            type="date"
-            name="eventDate"
-            value={form.eventDate}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Hora del llamado</label>
-          <input
-            type="time"
-            name="callTime"
-            step="1"
-            value={form.callTime}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-      </section>
-
-      {/* GRUPO 4 */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Modalidad</label>
-          <select
-            name="modalitie"
-            value={form.modalitie}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {Modalities.map(({ modalitie }, i) => (
-              <option key={i} value={modalitie} className="text-white bg-gray-900">{modalitie}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Jurisdicción</label>
-          <select
-            name="jurisdiction"
-            value={form.jurisdiction}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {jurisdictions.map((jurisdiction, i) => (
-              <option key={i} value={jurisdiction} className="text-white bg-gray-900">{jurisdiction}</option>
-            ))}
-          </select>
-        </div>
-      </section>
-
-      {/* GRUPO 5 */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Justicia interventora</label>
-          <select
-            name="justice"
-            value={form.interveningJustice.justice}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          >
-            <option value="" disabled className="text-gray-400 bg-black">Seleccionar...</option>
-            {interveningJustices.map((j, i) => (
-              <option key={i} value={j.justice} className="text-white bg-gray-900">{j.justice}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Fiscal a/c</label>
-          <input
-            type="text"
-            name="fiscal"
-            value={form.interveningJustice.fiscal}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-white/80 mb-1">Secretaría a/c</label>
-          <input
-            type="text"
-            name="secretariat"
-            value={form.interveningJustice.secretariat}
-            onChange={handleChange}
-            className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-          />
-        </div>
-      </section>
-
-      {/* GRUPO 6 */}
-      <div>
-        <label className="block text-sm font-medium text-white/80 mb-1">Reseña</label>
-        <textarea
-          name="review"
-          value={form.review}
-          onChange={handleChange}
-          rows="4"
-          className="w-full bg-black/40 text-white border border-sky-700 rounded-lg px-3 py-2 shadow-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-        ></textarea>
+      <div className='w-full flex justify-between'>
+        <h2 className="text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
+        <Link className='font-bold ' isExternal showAnchorIcon anchorIcon={<AnchorIcon />} color='danger' href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing">Instructivo</Link>
       </div>
+
+      <Accordion defaultExpandedKeys={['review']} selectionMode="multiple">
+        <AccordionItem aria-label="Area / Tipo / Nº" title="Area / Tipo / Nº" value={"Area / Tipo / Nº"}>
+          {/* GRUPO 1 */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <AutocompleteInput label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
+            </div>
+
+            <div>
+              <AutocompleteInput label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
+            </div>
+
+            <div>
+              <InputText name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem aria-label="Operador / interventor" title="Operador / interventor" value={"Operador / interventor"}>
+          {/* GRUPO 2 */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <AutocompleteInput label='Operador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
+            </div>
+
+            <div>
+              <AutocompleteInput label='interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem label="Colaboracion" title="Colaboracion" isDisabled={form.typeOfIntervention !== "REG LEGALES"} value={"Colaboracion"}>
+          {/*Grupo de colaboracion*/}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <InputText name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.cover} placeholder={"Ingresar caratula"} />
+            </div>
+
+            <div>
+              <InputText name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.summaryNum} placeholder={"Ingresar Nº de sumario"} />
+            </div>
+          </section>
+          <p className='my-6 text-red-500 font-bold'>Personal que firma</p>
+          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+              <InputText name={"colabFirmHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationFirm.colabFirmHierarchy} placeholder={"Ingresar jerarquia"} />
+            </div>
+
+            <div>
+              <InputText name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
+            </div>
+            <div>
+              <InputText name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
+            </div>
+            <div>
+              <InputText name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
+            </div>
+          </section>
+          <p className='my-6 text-red-500 font-bold'>Personal que visualiza</p>
+          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+              <InputText name={"colabWatchHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationWatch.colabWatchHierarchy} placeholder={"Ingresar jerarquia"} />
+            </div>
+
+            <div>
+              <InputText name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
+            </div>
+            <div>
+              <InputText name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
+            </div>
+            <div>
+              <InputText name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem aria-label="Operador / interventor" title="Direccion / fecha / hora" value={"Direccion / fecha / hora"}>
+          {/* GRUPO 3 */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <InputText name={"direction"} label={"Direccion"} handleChange={handleChange} value={form.direction} placeholder={"Ingresar direccion"} />
+            </div>
+
+            <div>
+              <InputDate value={form.eventDate} handleChange={handleDateChange} label={"Fecha del hecho"} />
+            </div>
+
+            <div>
+              <InputTime name={"callTime"} value={form.callTime} label={"Hora del llamado"} handleChange={handleChange} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem aria-label="Modalidad / comisaria" title="Modalidad / comisaria" value={"Modalidad / comisaria"}>
+          {/* GRUPO 4 */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <AutocompleteInput label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
+            </div>
+
+            <div>
+              <AutocompleteInput label='Comisaria' data={jurisdictionsList} name={"jurisdiction"} setValue={handleAutocompleteChange} value={form.jurisdiction} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem aria-label="Justicia interventora" title="Justicia interventora" value={"Justicia interventora"}>
+          {/* GRUPO 5 */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <AutocompleteInput label='Justicia' data={justicesList} name={"justice"} setValue={handleAutocompleteChange} value={form.interveningJustice.justice} />
+            </div>
+
+            <div>
+              <InputText name={"fiscal"} label={"Fiscal a/c"} handleChange={handleChange} value={form.interveningJustice.fiscal} placeholder={"Ingresar nombre"} />
+            </div>
+
+            <div>
+              <InputText name={"secretariat"} label={"Secretaria a/c"} handleChange={handleChange} value={form.interveningJustice.secretariat} placeholder={"Ingresar nombre"} />
+            </div>
+          </section>
+        </AccordionItem>
+        <AccordionItem aria-label='Reseña' title="Reseña" value="review">
+          <div className='p-2'>
+            <InputTextArea label={"Reseña"} value={form.review} handleChange={handleChange} name={"review"} />
+          </div>
+        </AccordionItem>
+      </Accordion>
+
 
       {/* BOTONES */}
       <div className="flex flex-col md:flex-row gap-4 mt-6">
-        <button
-          type="submit"
-          disabled={isFormIncomplete || loading}
-          className={`w-full md:w-auto px-6 py-3 rounded-lg font-semibold transition shadow-lg ${isFormIncomplete || loading
-              ? 'bg-sky-300 cursor-not-allowed text-white'
-              : 'bg-sky-500 hover:bg-sky-600 text-white'
-            }`}
-        >
-          Generar excel
-        </button>
-
-        <button
-          type="button"
-          onClick={handleClear}
-          className="bg-transparent border border-sky-500 text-sky-400 hover:bg-sky-500 hover:text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300"
-        >
-          Limpiar campos
-        </button>
+        <Button color="primary" variant="solid" type='submit' isDisabled={isFormIncomplete || loading}>
+          Generar Excel
+        </Button>
+        <Button color="danger" variant="ghost" onPress={handleClear}>
+          Lmpiar campos
+        </Button>
       </div>
     </form>
 

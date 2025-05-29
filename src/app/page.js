@@ -16,7 +16,21 @@ const ExcelModifier = () => {
     area: '',
     typeOfIntervention: '',
     number: '',
-    eventDate: '',
+    colaborationFirm: {
+      colabFirmHierarchy: "",
+      colabFirmLp: "",
+      colabFirmNames: "",
+      colabFirmLastNames: ""
+    },
+    colaborationWatch: {
+      colabWatchHierarchy: "",
+      colabWatchLp: "",
+      colabWatchNames: "",
+      colabWatchLastNames: ""
+    },
+    cover:"",
+    summaryNum:"",
+    eventDate: null,
     callTime: '',
     direction: '',
     jurisdiction: '',
@@ -37,16 +51,14 @@ const ExcelModifier = () => {
 
   return (
     <div
-      className="relative flex flex-col min-h-screen w-full text-white font-sans"
-      style={{
-        backgroundImage:
-        'linear-gradient(135deg, #0f172a, #1e293b, #334155, #0f172a)',
-      }}>
+      className="relative bg-black flex flex-col min-h-screen w-full text-white font-sans"
+
+    >
       <header className="w-full px-6 py-8 flex flex-col md:flex-row gap-4 items-center justify-between max-w-7xl mx-auto">
         <div className="flex gap-4 items-center justify-start">
-          <Image src="/logo.png" alt="deai logo" width={150} height={150} />
+          <Image src="/dai.png" alt="deai logo" width={150} height={150} />
           <h1 className="text-5xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-sky-600 text-transparent bg-clip-text animate-pulse">
-            DEAI GEN
+            DAI GEN
           </h1>
 
         </div>
@@ -66,7 +78,7 @@ const ExcelModifier = () => {
       </header>
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-6 pb-10">
-        <div className="bg-white/5 backdrop-blur-md p-6 rounded-xl shadow-xl ring-1 ring-white/10">
+        <div className="bg-white/5 backdrop-blur-xs p-6 rounded-xl shadow-xl ring-1 ring-white/10">
           <ExcelForm
             form={form}
             setForm={setForm}

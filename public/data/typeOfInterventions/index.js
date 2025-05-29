@@ -1,4 +1,4 @@
-export const typeOfIntervention=[
+export const typesOfInterventionList=[
     "SAE", 
     "REG LEGALES",
     "V.S.I",

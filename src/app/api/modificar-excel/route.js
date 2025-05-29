@@ -34,8 +34,18 @@ export async function POST(req) {
       ['C8', data.interveningJustice?.fiscal || ''],
       ['D8', data.interveningJustice?.secretariat || ''],
       ['B9', data.jurisdiction || ''],
-      ['B11', data.operator || ''],
-      ['B12', data.intervener || ''],
+      ['B14', data.operator || ''],
+      ['B15', data.intervener || ''],
+      ['B12', data.colaborationFirm?.colabFirmHierarchy || ''],
+      ['C12', data.colaborationFirm?.colabFirmLp || ''],
+      ['D12', data.colaborationFirm?.colabFirmNames || ''],
+      ['E12', data.colaborationFirm?.colabFirmLastNames || ''],
+      ['B13', data.colaborationWatch?.colabWatchHierarchy || ''],
+      ['C13', data.colaborationWatch?.colabWatchLp || ''],
+      ['D13', data.colaborationWatch?.colabWatchNames || ''],
+      ['E13', data.colaborationWatch?.colabWatchLastNames || ''],
+      ['B10', data.cover || ''],
+      ['D10', data.summaryNum || '']
     ];
 
     cellsToFormat.forEach(([cellRef, value]) => {
@@ -60,7 +70,7 @@ export async function POST(req) {
     };
 
     // Reseña sin estilos extra
-    worksheet.getCell('B25').value = data.review || '';
+    worksheet.getCell('B28').value = data.review || '';
 
     const buffer = await workbook.xlsx.writeBuffer();
 

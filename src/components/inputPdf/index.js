@@ -2,7 +2,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import ModalAlert from '../modalAlert';
-import { jurisdictions } from '../../../public/data/jurisdictions';
+import { jurisdictionsList } from '../../../public/data/jurisdictions';
+import { parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -86,8 +87,22 @@ const PdfReader = ({
         area: '',
         typeOfIntervention: '',
         number: '',
-        eventDate: '',
-        callTime: '',
+        colaborationFirm: {
+          colabFirmHierarchy: "",
+          colabFirmLp: "",
+          colabFirmNames: "",
+          colabFirmLastNames: ""
+        },
+        colaborationWatch: {
+          colabWatchHierarchy: "",
+          colabWatchLp: "",
+          colabWatchNames: "",
+          colabWatchLastNames: ""
+        },
+        cover: "",
+        summaryNum: "",
+        eventDate: null,
+        callTime: null,
         direction: '',
         jurisdiction: '',
         interveningJustice: {
@@ -109,12 +124,10 @@ const PdfReader = ({
 
       const data = await res.json();
       if (!data?.response) throw new Error('Respuesta vacía del servidor');
-
       const parsed =
         typeof data.response === 'string'
           ? JSON.parse(data.response)
           : data.response;
-
       if (parsed?.message) {
         ModalAlert('error', parsed.message);
         fileInputRef.current && (fileInputRef.current.value = '');
@@ -126,17 +139,23 @@ const PdfReader = ({
       }
 
       const validJurisdiction =
-        jurisdictions.find(
+        jurisdictionsList.find(
           (j) => j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
         ) || '';
 
       setForm({
         ...form,
         number: parsed.number || '',
-        eventDate: parsed.eventDate || '',
-        callTime: parsed.callTime || '',
+        eventDate: parseDate(parsed?.eventDate) || '',
+        callTime:parsed.callTime || '',
         direction: parsed.direction || '',
         jurisdiction: validJurisdiction,
+        modalitie:parsed.modalitie || '',
+        interveningJustice:{
+          justice:parsed.justice || '',
+          fiscal:parsed.fiscal || '',
+          secretariat:parsed.secretariat ||''
+        },
         review: parsed.review || '',
       });
 
@@ -182,11 +201,10 @@ const PdfReader = ({
         <button
           onClick={handleSubmit}
           disabled={!dataObject}
-          className={`py-2 px-6 rounded-md shadow transition font-semibold text-sm ${
-            !dataObject
-              ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
-              : 'bg-sky-700 hover:bg-sky-800 text-white'
-          }`}
+          className={`py-2 px-6 rounded-md shadow transition font-semibold text-sm ${!dataObject
+            ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
+            : 'bg-sky-700 hover:bg-sky-800 text-white'
+            }`}
         >
           Extraer
         </button>

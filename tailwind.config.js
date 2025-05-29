@@ -1,4 +1,4 @@
-import {heroui} from "@heroui/theme"
+import { heroui } from "@heroui/theme"
 
 /** @type {import('tailwindcss').Config} */
 const config = {
@@ -13,10 +13,27 @@ const config = {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
       },
+      backgroundImage: {
+        'dark-gradient': "linear-gradient(135deg, #0b1120, #141c2f, #1e293b, #0b1120)",
+      },
     },
   },
-  darkMode: "class",
-  plugins: [heroui()],
+  darkMode: false, // ya que no estás usando dark/light mode
+  plugins: [heroui({
+    themes: {
+      mytheme: {
+        colors: {
+          background: "#000000", // fondo base
+          foreground: "#fe89e3",
+          primary: {
+            DEFAULT: "#BEF264",
+            foreground: "#000000",
+          },
+          focus: "#BEF264",
+        },
+      },
+    },
+  })],
 }
 
 module.exports = config;
