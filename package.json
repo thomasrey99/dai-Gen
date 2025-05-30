@@ -23,6 +23,7 @@
     "@heroui/theme": "2.4.15",
     "@react-aria/ssr": "3.9.8",
     "@react-aria/visually-hidden": "3.8.22",
+    "@react-google-maps/api": "^2.20.6",
     "abort-controller": "^3.0.0",
     "agentkeepalive": "^4.6.0",
     "canvas": "^3.1.0",

@@ -14,6 +14,8 @@ import InputTime from '../inputs/inputTime';
 import InputDate from '../inputs/inputDate';
 import InputTextArea from '../inputs/textArea';
 import { Accordion, AccordionItem, Button, Link } from "@heroui/react";
+import AddressAutocomplete from '../inputPlace';
+import Map from '../map';
 
 
 export const AnchorIcon = (props) => {
@@ -54,7 +56,6 @@ export default function Excel({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (
       name === "colabFirmHierarchy" ||
       name === "colabFirmLp" ||
@@ -293,7 +294,8 @@ export default function Excel({
           {/* GRUPO 3 */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <InputText name={"direction"} label={"Direccion"} handleChange={handleChange} value={form.direction} placeholder={"Ingresar direccion"} />
+              {/*<InputText name={"direction"} label={"Direccion"} handleChange={handleChange} value={form.direction} placeholder={"Ingresar direccion"} />*/}
+              <AddressAutocomplete setValue={handleChange} value={form.direction} />
             </div>
 
             <div>
@@ -304,6 +306,11 @@ export default function Excel({
               <InputTime name={"callTime"} value={form.callTime} label={"Hora del llamado"} handleChange={handleChange} />
             </div>
           </section>
+          <div className='w-full'>
+            {
+              form.placeId && <Map url={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_MAPS_API_KEY}&q=place_id:${form.placeId}`} />
+            }
+          </div>
         </AccordionItem>
         <AccordionItem aria-label="Modalidad / comisaria" title="Modalidad / comisaria" value={"Modalidad / comisaria"}>
           {/* GRUPO 4 */}
@@ -339,6 +346,7 @@ export default function Excel({
           </div>
         </AccordionItem>
       </Accordion>
+
 
 
       {/* BOTONES */}

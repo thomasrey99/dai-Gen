@@ -33,6 +33,7 @@ const ExcelModifier = () => {
     eventDate: null,
     callTime: '',
     direction: '',
+    placeId:"",
     jurisdiction: '',
     interveningJustice: {
       justice: '',
