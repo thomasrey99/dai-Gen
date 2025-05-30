@@ -119,7 +119,7 @@ const PdfReader = ({
       const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: dataObject }),
+        body: JSON.stringify({ body: dataObject }),
       });
 
       const data = await res.json();

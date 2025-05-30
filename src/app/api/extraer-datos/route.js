@@ -8,10 +8,10 @@ const openai = new OpenAI({
 
 export async function POST(req) {
   try {
-    const { prompt } = await req.json();
+    const { body } = await req.json();
 
-    if (!prompt || typeof prompt !== 'string') {
-      return NextResponse.json({ error: 'Prompt inválido' }, { status: 400 });
+    if (!body || typeof body !== 'string') {
+      return NextResponse.json({ error: 'body inválido' }, { status: 400 });
     }
 
     const response = await openai.responses.create({
