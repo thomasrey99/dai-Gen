@@ -1,83 +1,56 @@
-import ExcelJS from 'exceljs';
+import XlsxPopulate from 'xlsx-populate';
 import path from 'path';
-
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
-}
 
 export async function POST(req) {
   try {
     const data = await req.json();
     const filePath = path.join(process.cwd(), 'public', 'planilla visualizador.xlsx');
 
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(filePath);
-    const worksheet = workbook.getWorksheet('DETALLE');
+    // Cargo el archivo base
+    const workbook = await XlsxPopulate.fromFileAsync(filePath);
 
-    // Celdas con valor, fuente Calibri bold y borde
-    const cellsToFormat = [
-      ['A2', data.typeOfIntervention],
-      ['B2', data.number],
-      ['B3', data.area],
-      ['B5', data.eventDate],
-      ['D5', data.callTime],
-      ['B6', data.direction],
-      ['B7', data.modalitie],
-      ['B8', data.interveningJustice?.justice || ''],
-      ['C8', data.interveningJustice?.fiscal || ''],
-      ['D8', data.interveningJustice?.secretariat || ''],
-      ['B9', data.jurisdiction || ''],
-      ['B14', data.operator || ''],
-      ['B15', data.intervener || ''],
-      ['B12', data.colaborationFirm?.colabFirmHierarchy || ''],
-      ['C12', data.colaborationFirm?.colabFirmLp || ''],
-      ['D12', data.colaborationFirm?.colabFirmNames || ''],
-      ['E12', data.colaborationFirm?.colabFirmLastNames || ''],
-      ['B13', data.colaborationWatch?.colabWatchHierarchy || ''],
-      ['C13', data.colaborationWatch?.colabWatchLp || ''],
-      ['D13', data.colaborationWatch?.colabWatchNames || ''],
-      ['E13', data.colaborationWatch?.colabWatchLastNames || ''],
-      ['B10', data.cover || ''],
-      ['D10', data.summaryNum || '']
-    ];
+    // Obtengo la hoja DETALLE
+    const sheet = workbook.sheet('DETALLE');
 
-    cellsToFormat.forEach(([cellRef, value]) => {
-      const cell = worksheet.getCell(cellRef);
-      cell.value = value;
-      cell.font = { name: 'Calibri', bold: true };
-      cell.border = {
-        top: { style: 'medium', color: { argb: '000000' } },
-        left: { style: 'medium', color: { argb: '000000' } },
-        bottom: { style: 'medium', color: { argb: '000000' } },
-        right: { style: 'medium', color: { argb: '000000' } },
-      };
-    });
+    // Actualizo celdas con los valores (igual que antes)
+    sheet.cell('A2').value(data.typeOfIntervention).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B2').value(data.number).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B3').value(data.area).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B5').value(data.eventDate).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('D5').value(data.callTime).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B6').value(data.direction).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B7').value(data.modalitie).style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B8').value(data.interveningJustice?.justice || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('C8').value(data.interveningJustice?.fiscal || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('D8').value(data.interveningJustice?.secretariat || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B9').value(data.jurisdiction || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B14').value(data.operator || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B15').value(data.intervener || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B12').value(data.colaborationFirm?.colabFirmHierarchy || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('C12').value(data.colaborationFirm?.colabFirmLp || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('D12').value(data.colaborationFirm?.colabFirmNames || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('E12').value(data.colaborationFirm?.colabFirmLastNames || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B13').value(data.colaborationWatch?.colabWatchHierarchy || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('C13').value(data.colaborationWatch?.colabWatchLp || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('D13').value(data.colaborationWatch?.colabWatchNames || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('E13').value(data.colaborationWatch?.colabWatchLastNames || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('B10').value(data.cover || '').style({ fontFamily: 'Calibri', bold: true, border: true });
+    sheet.cell('D10').value(data.summaryNum || '').style({ fontFamily: 'Calibri', bold: true, border: true });
 
-    // Restaurar fórmula en C9 y D9
-    worksheet.getCell('C9').value = {
-      formula: 'IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")',
-    };
+    // Fórmulas
+    sheet.cell('C9').formula('IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")');
+    sheet.cell('D9').formula('IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")');
 
-    worksheet.getCell('D9').value = {
-      formula: 'IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")',
-    };
+    // Reseña sin formato extra
+    sheet.cell('B28').value(data.review || '');
 
-    // Reseña sin estilos extra
-    worksheet.getCell('B28').value = data.review || '';
-
-    const buffer = await workbook.xlsx.writeBuffer();
+    // Generar buffer del archivo modificado
+    const buffer = await workbook.outputAsync();
 
     return new Response(buffer, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename=PLANILLA_DE_VISUALIZACION.xlsx', // ✅ sin tilde
+        'Content-Disposition': 'attachment; filename=PLANILLA_DE_VISUALIZACION.xlsx',
         'Access-Control-Allow-Origin': '*',
       },
     });
