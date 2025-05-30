@@ -1,6 +1,5 @@
 "use client";
 
-import { Input } from "@heroui/input";
 import { useEffect, useRef, useState } from "react";
 
 export default function AddressAutocomplete({ value, setValue }) {
@@ -134,7 +133,7 @@ export default function AddressAutocomplete({ value, setValue }) {
     }, [selected]);
 
     return (
-        <Input
+        <input
             ref={inputRef}
             name="direction"
             value={value}
