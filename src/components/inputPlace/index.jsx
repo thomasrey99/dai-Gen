@@ -1,16 +1,12 @@
-"use client";
+import { Tooltip } from "@heroui/react";
+import { useEffect, useRef } from "react";
 
-import { useEffect, useRef, useState } from "react";
-
-export default function AddressAutocomplete({ value, setValue }) {
+export default function AddressAutocomplete({ value, setValue, rule}) {
     const inputRef = useRef(null);
-    const [selected, setSelected] = useState("");
 
     useEffect(() => {
         const loadScript = (url) => {
-            // Evitar múltiples inserciones del mismo script
-            const existingScript = document.querySelector(`script[src="${url}"]`);
-            if (existingScript) return;
+            if (document.querySelector(`script[src="${url}"]`)) return;
 
             const script = document.createElement("script");
             script.src = url;
@@ -51,7 +47,7 @@ export default function AddressAutocomplete({ value, setValue }) {
                 }
             );
 
-            autocomplete.setFields(["place_id"]);
+            autocomplete.setFields(["place_id", "address_components"]);
 
             autocomplete.addListener("place_changed", async () => {
                 const place = autocomplete.getPlace();
@@ -59,7 +55,9 @@ export default function AddressAutocomplete({ value, setValue }) {
                     try {
                         const details = await getPlaceDetails(place.place_id);
                         const formattedAddress = await getFormattedAddress(details);
-                        setSelected(formattedAddress);
+
+                        // Simular eventos de input para handleChange
+                        setValue({ target: { name: "direction", value: formattedAddress } });
                         setValue({ target: { name: "placeId", value: place.place_id } });
                     } catch (error) {
                         console.error("Error al obtener los detalles del lugar:", error);
@@ -126,21 +124,26 @@ export default function AddressAutocomplete({ value, setValue }) {
         }, 300);
 
         return () => clearInterval(interval);
-    }, [setValue]);
-
-    useEffect(() => {
-        setValue({ target: { name: "direction", value: selected } });
-    }, [selected]);
+    }, []);
 
     return (
-        <input
-            ref={inputRef}
-            name="direction"
-            value={value}
-            onChange={setValue}
-            type="text"
-            placeholder="Buscar dirección en Buenos Aires"
-            className="w-full p-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
-        />
+        <>
+            <Tooltip
+                content={rule || ""}
+                color="warning"
+                placement="bottom-start"
+            >
+                <input
+                    ref={inputRef}
+                    name="direction"
+                    value={value}
+                    onChange={setValue}
+                    type="text"
+                    placeholder="Buscar dirección en Buenos Aires"
+                    className="w-full p-2 h-full border border-gray-500 rounded-xl shadow-sm focus:outline-none focus:ring focus:ring-gray-500"
+                />
+            </Tooltip>
+        </>
+
     );
 }

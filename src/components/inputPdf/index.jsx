@@ -4,6 +4,9 @@ import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import ModalAlert from '../modalAlert';
 import { jurisdictionsList } from '../../../public/data/jurisdictions';
 import { parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/date';
+import { Button } from '@heroui/button';
+import { Link } from '@heroui/link';
+import { Input } from '@heroui/input';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
@@ -102,8 +105,9 @@ const PdfReader = ({
         cover: "",
         summaryNum: "",
         eventDate: null,
-        callTime: null,
+        callTime: '',
         direction: '',
+        placeId: "",
         jurisdiction: '',
         interveningJustice: {
           justice: '',
@@ -147,19 +151,19 @@ const PdfReader = ({
         ...form,
         number: parsed.number || '',
         eventDate: parseDate(parsed?.eventDate) || '',
-        callTime:parsed.callTime || '',
+        callTime: parsed.callTime || '',
         direction: parsed.direction || '',
         jurisdiction: validJurisdiction,
-        modalitie:parsed.modalitie || '',
-        interveningJustice:{
-          justice:parsed.justice || '',
-          fiscal:parsed.fiscal || '',
-          secretariat:parsed.secretariat ||''
+        modalitie: parsed.modalitie || '',
+        interveningJustice: {
+          justice: parsed.justice || '',
+          fiscal: parsed.fiscal || '',
+          secretariat: parsed.secretariat || ''
         },
         review: parsed.review || '',
       });
 
-      ModalAlert('success', 'Datos cargados con éxito');
+      ModalAlert('success', 'Datos cargados con éxito, verifica que sean correctos');
     } catch (error) {
       console.error('Error al extraer datos:', error);
       ModalAlert('error', 'Error inesperado al procesar el archivo');
@@ -169,58 +173,62 @@ const PdfReader = ({
   };
 
   return (
-    <section className="p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md max-w-4xl">
-      <h2 className="mb-2 text-lg font-semibold text-white tracking-wide">
+    <section className="w-full xl:max-w-2xl p-4 sm:p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
+
+      <h2 className="mb-3 text-base sm:text-lg font-semibold text-white tracking-wide text-center sm:text-left">
         Cargar y Extraer Datos del PDF
       </h2>
-      <div className="flex items-center gap-2">
-        <label
-          htmlFor="pdfInput"
-          className="text-white font-medium tracking-wide cursor-pointer bg-black/40 border border-gray-600 rounded-md px-3 py-2 shadow hover:border-sky-400 focus-within:ring-2 focus-within:ring-sky-500 text-sm"
-        >
-          Seleccionar archivo PDF
-          <input
-            id="pdfInput"
-            type="file"
-            accept="application/pdf"
+
+      <div className="w-full flex flex-col xl:flex-row gap-3 sm:gap-2">
+        <div className="w-full xl:w-1/3">
+          <Input
+            type='file'
+            accept='application/pdf'
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="hidden"
           />
-        </label>
+        </div>
 
-        <input
-          type="text"
-          readOnly
-          value={fileName}
-          placeholder="No hay archivo seleccionado"
-          className="flex-1 bg-black/20 border border-gray-600 rounded-md px-3 py-2 text-white cursor-not-allowed select-text text-sm"
-          title={fileName}
-        />
 
-        <button
-          onClick={handleSubmit}
-          disabled={!dataObject}
-          className={`py-2 px-6 rounded-md shadow transition font-semibold text-sm ${!dataObject
-            ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
-            : 'bg-sky-700 hover:bg-sky-800 text-white'
-            }`}
-        >
-          Extraer
-        </button>
+        <div className="w-full xl:w-1/3">
+          <Input
+            type="text"
+            readOnly
+            value={fileName}
+            placeholder="No hay archivo seleccionado"
+            title={fileName}
+          />
+        </div>
 
-        {pdfURL && (
-          <a
-            href={pdfURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="py-2 px-6 text-white bg-cyan-600 hover:bg-cyan-700 rounded-md shadow transition font-semibold text-sm"
+        <div className="w-full xl:w-1/3 flex flex-col xl:flex-row gap-2">
+          <Button
+            onPress={handleSubmit}
+            isDisabled={!dataObject}
+            className={`flex-1 py-2 rounded-md shadow transition font-semibold text-sm
+              ${!dataObject
+                ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
+                : 'bg-sky-700 hover:bg-sky-800 text-white'
+              }`}
           >
-            Ver PDF
-          </a>
-        )}
+            Extraer
+          </Button>
+
+          {pdfURL && (
+            <Link
+              href={pdfURL}
+              isExternal
+              className="flex-1 py-2 text-white bg-cyan-600 hover:bg-cyan-700 rounded-md shadow transition font-semibold text-sm flex items-center justify-center"
+
+            >
+              Ver PDF
+            </Link>
+          )}
+        </div>
+
+
       </div>
     </section>
+
   );
 };
 

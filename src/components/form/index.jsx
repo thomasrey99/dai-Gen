@@ -13,9 +13,10 @@ import InputText from '../inputs/inputText';
 import InputTime from '../inputs/inputTime';
 import InputDate from '../inputs/inputDate';
 import InputTextArea from '../inputs/textArea';
-import { Accordion, AccordionItem, Button, Link } from "@heroui/react";
+import { Accordion, AccordionItem, Button, Link, useDisclosure } from "@heroui/react";
 import AddressAutocomplete from '../inputPlace';
 import Map from '../map';
+import ModalConfirm from '../modal';
 
 
 export const AnchorIcon = (props) => {
@@ -53,22 +54,23 @@ export default function Excel({
 }) {
 
 
-
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (
       name === "colabFirmHierarchy" ||
       name === "colabFirmLp" ||
       name === "colabFirmNames" ||
       name === "colabFirmLastNames"
     ) {
-      setForm({
-        ...form,
+      setForm(prevForm => ({
+        ...prevForm,
         colaborationFirm: {
-          ...form.colaborationFirm,
+          ...prevForm.colaborationFirm,
           [name]: value,
         },
-      });
+      }));
       return;
     }
 
@@ -78,29 +80,34 @@ export default function Excel({
       name === "colabWatchNames" ||
       name === "colabWatchLastNames"
     ) {
-      setForm({
-        ...form,
+      setForm(prevForm => ({
+        ...prevForm,
         colaborationWatch: {
-          ...form.colaborationWatch,
+          ...prevForm.colaborationWatch,
           [name]: value,
         },
-      });
+      }));
       return;
     }
+
     if (name === 'fiscal' || name === 'secretariat') {
-      setForm({
-        ...form,
+      setForm(prevForm => ({
+        ...prevForm,
         interveningJustice: {
-          ...form.interveningJustice,
+          ...prevForm.interveningJustice,
           [name]: value,
         },
-      });
-      return;
-    } else {
-      setForm({ ...form, [name]: value });
+      }));
       return;
     }
+
+    // Default case
+    setForm(prevForm => ({
+      ...prevForm,
+      [name]: value,
+    }));
   };
+
 
   const handleAutocompleteChange = (name, value) => {
     if (name === 'justice') {
@@ -158,43 +165,50 @@ export default function Excel({
   };
 
   const handleClear = () => {
-    setForm({
-      area: '',
-      typeOfIntervention: '',
-      number: '',
-      colaborationFirm: {
-        colabFirmHierarchy: "",
-        colabFirmLp: "",
-        colabFirmNames: "",
-        colabFirmLastNames: ""
-      },
-      colaborationWatch: {
-        colabWatchHierarchy: "",
-        colabWatchLp: "",
-        colabWatchNames: "",
-        colabWatchLastNames: ""
-      },
-      cover: "",
-      summaryNum: "",
-      eventDate: null,
-      callTime: '',
-      direction: '',
-      jurisdiction: '',
-      interveningJustice: {
-        justice: '',
-        fiscal: '',
-        secretariat: '',
-      },
-      modalitie: '',
-      operator: '',
-      intervener: '',
-      review: '',
-    });
+    try {
+      onOpenChange(false)
+      setForm({
+        area: '',
+        typeOfIntervention: '',
+        number: '',
+        colaborationFirm: {
+          colabFirmHierarchy: "",
+          colabFirmLp: "",
+          colabFirmNames: "",
+          colabFirmLastNames: ""
+        },
+        colaborationWatch: {
+          colabWatchHierarchy: "",
+          colabWatchLp: "",
+          colabWatchNames: "",
+          colabWatchLastNames: ""
+        },
+        cover: "",
+        summaryNum: "",
+        eventDate: null,
+        callTime: '',
+        direction: '',
+        placeId: "",
+        jurisdiction: '',
+        interveningJustice: {
+          justice: '',
+          fiscal: '',
+          secretariat: '',
+        },
+        modalitie: '',
+        operator: '',
+        intervener: '',
+        review: '',
+      });
 
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    setFileName("")
-    setPdfURL(null);
-    setDataObject(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      setFileName("")
+      setPdfURL(null);
+      setDataObject(null);
+      ModalAlert("success", "Campos limpios!")
+    } catch (error) {
+      ModalAlert("error", "Error al borrar los campos")
+    }
   };
 
   const isFormIncomplete = Object.entries(form).some(([key, value]) => {
@@ -212,9 +226,9 @@ export default function Excel({
       className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md"
       onSubmit={handleSubmit}
     >
-      <div className='w-full flex justify-between'>
-        <h2 className="text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
-        <Link className='font-bold ' isExternal showAnchorIcon anchorIcon={<AnchorIcon />} color='danger' href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing">Instructivo</Link>
+      <div className='w-full flex flex-col xl:flex-row justify-between'>
+        <h2 className="text-lg xl:text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
+        <Link className='font-bold ' isExternal showAnchorIcon anchorIcon={<AnchorIcon />} color='warning' href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing">Instructivo</Link>
       </div>
 
       <Accordion defaultExpandedKeys={['review']} selectionMode="multiple">
@@ -222,27 +236,27 @@ export default function Excel({
           {/* GRUPO 1 */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <AutocompleteInput label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
+              <AutocompleteInput rule={"DAI / SARIM / DAI Y SARIM"} label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
             </div>
 
             <div>
-              <AutocompleteInput label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
+              <AutocompleteInput rule={"SAE / REG LEGALES / V.S.I / P.J. / PRENSA / V.C.A"} label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
             </div>
 
             <div>
-              <InputText name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
+              <InputText rule={"Nº de SAE/REG LEGALES o nombre"} name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem aria-label="Operador / interventor" title="Operador / interventor" value={"Operador / interventor"}>
+        <AccordionItem aria-label="Visualizador / interventor" title="Visualizador / interventor" value={"Visualizador / interventor"}>
           {/* GRUPO 2 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <AutocompleteInput label='Operador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
+              <AutocompleteInput rule={"Seleccionar o tipear apellido del visualizador"} label='Visualizador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
             </div>
 
             <div>
-              <AutocompleteInput label='interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
+              <AutocompleteInput rule={"Seleccionar o tipear apellido del interventor"} label='Interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
             </div>
           </section>
         </AccordionItem>
@@ -250,43 +264,43 @@ export default function Excel({
           {/*Grupo de colaboracion*/}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <InputText name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.cover} placeholder={"Ingresar caratula"} />
+              <InputText rule={"Caratula que figura en la nota"} name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.cover} placeholder={"Ingresar caratula"} />
             </div>
 
             <div>
-              <InputText name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.summaryNum} placeholder={"Ingresar Nº de sumario"} />
+              <InputText rule={"Nº de sumario que figura en la nota"} name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.summaryNum} placeholder={"Ingresar Nº de sumario"} />
             </div>
           </section>
-          <p className='my-6 text-red-500 font-bold'>Personal que firma</p>
+          <p className='my-6 text-red-500 font-bold'>Personal que firma Nota / Oficio</p>
           <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-              <InputText name={"colabFirmHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationFirm.colabFirmHierarchy} placeholder={"Ingresar jerarquia"} />
+              <InputText rule={"Jerarquia del personal que firmo la nota"} name={"colabFirmHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationFirm.colabFirmHierarchy} placeholder={"Ingresar jerarquia"} />
             </div>
 
             <div>
-              <InputText name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
+              <InputText rule={"L.P. del personal que firmo la nota"} name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
             </div>
             <div>
-              <InputText name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
+              <InputText rule={"Nombres del personal que firmo la nota"} name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
             </div>
             <div>
-              <InputText name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
+              <InputText rule={"Apellidos del personal que firmo la nota"} name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
             </div>
           </section>
           <p className='my-6 text-red-500 font-bold'>Personal que visualiza</p>
           <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-              <InputText name={"colabWatchHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationWatch.colabWatchHierarchy} placeholder={"Ingresar jerarquia"} />
+              <InputText rule={"Jerarquia del personal que va a visualizar"} name={"colabWatchHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationWatch.colabWatchHierarchy} placeholder={"Ingresar jerarquia"} />
             </div>
 
             <div>
-              <InputText name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
+              <InputText rule={"L.P. del personal que va a visualizar"} name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
             </div>
             <div>
-              <InputText name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
+              <InputText rule={"Nombres del personal que va a visualizar"} name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
             </div>
             <div>
-              <InputText name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
+              <InputText rule={"Apellidos del personal que va a visualizar"} name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
             </div>
           </section>
         </AccordionItem>
@@ -295,18 +309,18 @@ export default function Excel({
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               {/*<InputText name={"direction"} label={"Direccion"} handleChange={handleChange} value={form.direction} placeholder={"Ingresar direccion"} />*/}
-              <AddressAutocomplete setValue={handleChange} value={form.direction} />
+              <AddressAutocomplete rule={"Texto capitalizado. (Ej: Monteagudo 1269 o Avenida Corrientes y Avenida 9 de Julio)"} setValue={handleChange} value={form.direction} />
             </div>
 
             <div>
-              <InputDate value={form.eventDate} handleChange={handleDateChange} label={"Fecha del hecho"} />
+              <InputDate rule={"Solo tipear dd/mm/aaaa (se formatea solo a dd-mm-aaaa)"} value={form.eventDate} handleChange={handleDateChange} label={"Fecha del hecho"} />
             </div>
 
             <div>
-              <InputTime name={"callTime"} value={form.callTime} label={"Hora del llamado"} handleChange={handleChange} />
+              <InputTime rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"callTime"} value={form.callTime} label={"Hora del llamado"} handleChange={handleChange} />
             </div>
           </section>
-          <div className='w-full'>
+          <div className='w-full mt-2'>
             {
               form.placeId && <Map url={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_MAPS_API_KEY}&q=place_id:${form.placeId}`} />
             }
@@ -316,29 +330,53 @@ export default function Excel({
           {/* GRUPO 4 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <AutocompleteInput label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
+              <AutocompleteInput rule={"Seleccionar o tipear una modalidad"} label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
             </div>
 
             <div>
-              <AutocompleteInput label='Comisaria' data={jurisdictionsList} name={"jurisdiction"} setValue={handleAutocompleteChange} value={form.jurisdiction} />
+              <AutocompleteInput rule={"Seleccionar o tipear una dependencia"} label='Dependencia' data={jurisdictionsList} name={"jurisdiction"} setValue={handleAutocompleteChange} value={form.jurisdiction} />
             </div>
           </section>
         </AccordionItem>
         <AccordionItem aria-label="Justicia interventora" title="Justicia interventora" value={"Justicia interventora"}>
           {/* GRUPO 5 */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <AutocompleteInput label='Justicia' data={justicesList} name={"justice"} setValue={handleAutocompleteChange} value={form.interveningJustice.justice} />
+          <section className="flex flex-col md:block">
+            <div className="w-full mb-6">
+              <AutocompleteInput
+                rule={"Seleccionar o tipear la Justicia que intervino"}
+                label="Justicia"
+                data={justicesList}
+                name="justice"
+                setValue={handleAutocompleteChange}
+                value={form.interveningJustice.justice}
+              />
             </div>
 
-            <div>
-              <InputText name={"fiscal"} label={"Fiscal a/c"} handleChange={handleChange} value={form.interveningJustice.fiscal} placeholder={"Ingresar nombre"} />
-            </div>
+            <div className="flex flex-col gap-6 md:flex-row">
+              <div className="w-full md:w-1/2">
+                <InputText
+                  rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
+                  name="fiscal"
+                  label="Fiscal a/c"
+                  handleChange={handleChange}
+                  value={form.interveningJustice.fiscal}
+                  placeholder="Ingresar nombre"
+                />
+              </div>
 
-            <div>
-              <InputText name={"secretariat"} label={"Secretaria a/c"} handleChange={handleChange} value={form.interveningJustice.secretariat} placeholder={"Ingresar nombre"} />
+              <div className="w-full md:w-1/2">
+                <InputText
+                  rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
+                  name="secretariat"
+                  label="Secretaría a/c"
+                  handleChange={handleChange}
+                  value={form.interveningJustice.secretariat}
+                  placeholder="Ingresar nombre"
+                />
+              </div>
             </div>
           </section>
+
         </AccordionItem>
         <AccordionItem aria-label='Reseña' title="Reseña" value="review">
           <div className='p-2'>
@@ -354,10 +392,11 @@ export default function Excel({
         <Button color="primary" variant="solid" type='submit' isDisabled={isFormIncomplete || loading}>
           Generar Excel
         </Button>
-        <Button color="danger" variant="ghost" onPress={handleClear}>
+        <Button color="success" variant="ghost" onPress={()=>{onOpenChange(true)}}>
           Lmpiar campos
         </Button>
       </div>
+      <ModalConfirm text={"¿Desea limpiar todos los campos del formulario?"} title={"Limpiar campos"} action={handleClear} actionTitle={"Limpiar"} isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} />
     </form>
 
 

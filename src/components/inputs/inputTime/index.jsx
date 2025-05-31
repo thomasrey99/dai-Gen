@@ -1,5 +1,5 @@
 'use client';
-import { TimeInput } from "@heroui/react";
+import { TimeInput, Tooltip } from "@heroui/react";
 import { parseTime } from "@internationalized/date";
 
 export const ClockCircleLinearIcon = (props) => {
@@ -22,30 +22,38 @@ export const ClockCircleLinearIcon = (props) => {
     );
 };
 
-const InputTime = ({ label, name, value, handleChange }) => {
-    console.log("hora", value)
+const InputTime = ({ label, name, value, handleChange, rule }) => {
     return (
-        <TimeInput
-            startContent={
-                <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
-            }
-            className="w-full"
-            variant="faded"
-            value={value ? parseTime(value) : null} // convierte el string a TimeValue
-            name={name}
-            granularity="second"
-            label={label}
-            hourCycle={24}
-            onChange={(newValue) => {
-                if (newValue) {
-                    const timeStr = `${String(newValue.hour).padStart(2, '0')}:${String(newValue.minute).padStart(2, '0')}:${String(newValue.second).padStart(2, '0')}`;
-                    handleChange({ target: { name, value: timeStr } });
-                } else {
-                    handleChange({ target: { name, value: '' } });
-                }
-            }}
+        <>
+            <Tooltip
+                content={rule || ""}
+                color="warning"
+                placement="bottom-start"
+            >
+                <TimeInput
+                    startContent={
+                        <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
+                    }
+                    className="w-full"
+                    variant="faded"
+                    value={value ? parseTime(value) : null} // convierte el string a TimeValue
+                    name={name}
+                    granularity="second"
+                    label={label}
+                    hourCycle={24}
+                    onChange={(newValue) => {
+                        if (newValue) {
+                            const timeStr = `${String(newValue.hour).padStart(2, '0')}:${String(newValue.minute).padStart(2, '0')}:${String(newValue.second).padStart(2, '0')}`;
+                            handleChange({ target: { name, value: timeStr } });
+                        } else {
+                            handleChange({ target: { name, value: '' } });
+                        }
+                    }}
 
-        />
+                />
+            </Tooltip>
+        </>
+
     );
 };
 

@@ -1,8 +1,7 @@
-import { DatePicker } from '@heroui/react';
+import { DatePicker, Tooltip } from '@heroui/react';
 import { I18nProvider } from '@react-aria/i18n';
 
-const InputDate = ({ value, handleChange, label }) => {
-    console.log("lo que llega por value",value)
+const InputDate = ({ value, handleChange, label, rule }) => {
     const onHandleChange = (e) => {
         if (!e) {
             handleChange(null);
@@ -14,13 +13,18 @@ const InputDate = ({ value, handleChange, label }) => {
 
     return (
         <I18nProvider locale="es-AR">
-            <DatePicker
-                className='w-full'
-                variant='faded'
-                value={value || null}
-                onChange={onHandleChange}
-                label={label}
-            />
+            <Tooltip
+                content={rule || ""}
+                color="warning"
+                placement="bottom-start"
+            >
+                <DatePicker
+                    className='w-full'
+                    variant='faded'
+                    value={value || null}
+                    onChange={onHandleChange}
+                    label={label}
+                /></Tooltip>
         </I18nProvider>
     );
 };
