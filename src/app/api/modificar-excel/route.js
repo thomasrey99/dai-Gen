@@ -91,7 +91,7 @@ export async function POST(req) {
       ]);
     } else {
       // 👇 No seteamos nada, dejamos el contenido original del Excel
-      sheet.cell("B27").value("puto")
+      console.log("Error")
     }
 
 
