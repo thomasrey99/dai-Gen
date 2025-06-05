@@ -1,5 +1,4 @@
 'use client';
-
 import { modalitiesList } from '../../../public/data/modalities';
 import { operatorsList } from '../../../public/data/operators';
 import { intervenersList } from '../../../public/data/interveners';
@@ -7,6 +6,7 @@ import { areasList } from '../../../public/data/areas';
 import { typesOfInterventionList } from '../../../public/data/typeOfInterventions';
 import { jurisdictionsList } from '../../../public/data/jurisdictions';
 import { justicesList } from '../../../public/data/justice';
+import { hierarchiesList } from "../../../public/data/hierarchies"
 import ModalAlert from '../modalAlert';
 import AutocompleteInput from '../autocomplete';
 import InputText from '../inputs/inputText';
@@ -17,6 +17,8 @@ import { Accordion, AccordionItem, Button, Link, useDisclosure } from "@heroui/r
 import AddressAutocomplete from '../inputPlace';
 import Map from '../map';
 import ModalConfirm from '../modal';
+import { useEffect, useState } from 'react';
+import { validations } from '@/utils/validations';
 
 
 export const AnchorIcon = (props) => {
@@ -53,39 +55,83 @@ export default function Excel({
   setFileName
 }) {
 
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const handleChange = (e) => {
+  const [errors, setErrors] = useState({})
+  const handleChange = async (e) => {
     const { name, value } = e.target;
 
-    if (
-      name === "colabFirmHierarchy" ||
-      name === "colabFirmLp" ||
-      name === "colabFirmNames" ||
-      name === "colabFirmLastNames"
-    ) {
-      setForm(prevForm => ({
-        ...prevForm,
-        colaborationFirm: {
-          ...prevForm.colaborationFirm,
-          [name]: value,
-        },
-      }));
-      return;
-    }
+    await validations(name, value)
 
     if (
-      name === "colabWatchHierarchy" ||
+      name === "colabFirmLp" ||
+      name === "colabFirmNames" ||
+      name === "colabFirmLastNames" ||
       name === "colabWatchLp" ||
       name === "colabWatchNames" ||
-      name === "colabWatchLastNames"
+      name === "colabWatchLastNames" ||
+      name === "cover" ||
+      name === "summaryNum" ||
+      name === "initTime" ||
+      name === "endTime"
     ) {
+      if (
+        name === "colabFirmLp" ||
+        name === "colabFirmNames" ||
+        name === "colabFirmLastNames"
+
+      ) {
+        setForm(prevForm => ({
+          ...prevForm,
+          colaboration: {
+            ...prevForm.colaboration,
+            colaborationFirm: {
+              ...prevForm.colaboration.colaborationFirm,
+              [name]: value,
+            },
+          }
+        }));
+        return;
+      }
+
+      if (
+        name === "colabWatchLp" ||
+        name === "colabWatchNames" ||
+        name === "colabWatchLastNames"
+      ) {
+        setForm(prevForm => ({
+          ...prevForm,
+          colaboration: {
+            ...prevForm.colaboration,
+            colaborationWatch: {
+              ...prevForm.colaboration.colaborationWatch,
+              [name]: value,
+            },
+          }
+        }));
+        return;
+      }
+      if (
+        name === "initTime" ||
+        name === "endTime"
+      ) {
+        setForm(prevForm => ({
+          ...prevForm,
+          colaboration: {
+            ...prevForm.colaboration,
+            rangeTime: {
+              ...prevForm.colaboration.rangeTime,
+              [name]: value
+            }
+          }
+        }));
+        return
+      }
       setForm(prevForm => ({
         ...prevForm,
-        colaborationWatch: {
-          ...prevForm.colaborationWatch,
-          [name]: value,
-        },
+        colaboration: {
+          ...prevForm.colaboration,
+          [name]: value
+        }
       }));
       return;
     }
@@ -106,10 +152,45 @@ export default function Excel({
       ...prevForm,
       [name]: value,
     }));
+
+    const validationErrors=validations(name, value)
+
+    setErrors(prevErrors=>({
+      ...prevErrors,
+      [name]:validationErrors[name]
+    }))
+
+    return;
   };
 
 
-  const handleAutocompleteChange = (name, value) => {
+  const handleAutocompleteChange = async (name, value) => {
+    if (name === "colabFirmHierarchy") {
+      setForm(prevForm => ({
+        ...prevForm,
+        colaboration: {
+          ...prevForm.colaboration,
+          colaborationFirm: {
+            ...prevForm.colaboration.colaborationFirm,
+            [name]: value
+          }
+        }
+      }))
+      return;
+    }
+    if (name === "colabWatchHierarchy") {
+      setForm(prevForm => ({
+        ...prevForm,
+        colaboration: {
+          ...prevForm.colaboration,
+          colaborationWatch: {
+            ...prevForm.colaboration.colaborationWatch,
+            [name]: value
+          }
+        }
+      }))
+      return;
+    }
     if (name === 'justice') {
       setForm({
         ...form,
@@ -125,6 +206,11 @@ export default function Excel({
         [name]: value
       })
     }
+    const validationErrors = validations(name, value)
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: validationErrors[name]
+    }))
   }
 
   const handleDateChange = (date) => {
@@ -134,7 +220,7 @@ export default function Excel({
     })
   }
 
-  const handleSubmit = async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -171,20 +257,26 @@ export default function Excel({
         area: '',
         typeOfIntervention: '',
         number: '',
-        colaborationFirm: {
-          colabFirmHierarchy: "",
-          colabFirmLp: "",
-          colabFirmNames: "",
-          colabFirmLastNames: ""
+        colaboration: {
+          colaborationFirm: {
+            colabFirmHierarchy: "",
+            colabFirmLp: "",
+            colabFirmNames: "",
+            colabFirmLastNames: ""
+          },
+          colaborationWatch: {
+            colabWatchHierarchy: "",
+            colabWatchLp: "",
+            colabWatchNames: "",
+            colabWatchLastNames: ""
+          },
+          rangeTime: {
+            initTime: "",
+            endTime: ""
+          },
+          cover: "",
+          summaryNum: "",
         },
-        colaborationWatch: {
-          colabWatchHierarchy: "",
-          colabWatchLp: "",
-          colabWatchNames: "",
-          colabWatchLastNames: ""
-        },
-        cover: "",
-        summaryNum: "",
         eventDate: null,
         callTime: '',
         direction: '',
@@ -221,10 +313,14 @@ export default function Excel({
     return false;
   });
 
+  useEffect(() => {
+    console.log(errors)
+  }, [errors])
+
   return (
     <form
       className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md"
-      onSubmit={handleSubmit}
+      onSubmit={onSubmit}
     >
       <div className='w-full flex flex-col xl:flex-row justify-between'>
         <h2 className="text-lg xl:text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
@@ -232,79 +328,89 @@ export default function Excel({
       </div>
 
       <Accordion defaultExpandedKeys={['review']} selectionMode="multiple">
-        <AccordionItem aria-label="Area / Tipo / Nº" title="Area / Tipo / Nº" value={"Area / Tipo / Nº"}>
+        <AccordionItem aria-label="Area / Tipo / Nº" title="Area / Tipo / Nº" key={"Area / Tipo / Nº"}>
           {/* GRUPO 1 */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <AutocompleteInput rule={"DAI / SARIM / DAI Y SARIM"} label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
+              <AutocompleteInput isRequired={true} error={errors.area} rule={"DAI / SARIM / DAI Y SARIM"} label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
             </div>
 
             <div>
-              <AutocompleteInput rule={"SAE / REG LEGALES / V.S.I / P.J. / PRENSA / V.C.A"} label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
+              <AutocompleteInput isRequired={true} error={errors.typeOfIntervention} rule={"SAE / REG LEGALES / V.S.I / P.J. / PRENSA / V.C.A"} label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
             </div>
 
             <div>
-              <InputText rule={"Nº de SAE/REG LEGALES o nombre"} name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
+              <InputText isRequired={true} error={errors.number} rule={"Nº de SAE/REG LEGALES o Nombre"} name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem aria-label="Visualizador / interventor" title="Visualizador / interventor" value={"Visualizador / interventor"}>
+        <AccordionItem aria-label="Visualizador / interventor" title="Visualizador / interventor" key={"Visualizador / interventor"}>
           {/* GRUPO 2 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <AutocompleteInput rule={"Seleccionar o tipear apellido del visualizador"} label='Visualizador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
+              <AutocompleteInput isRequired={true} error={errors.operator} rule={"Seleccionar o tipear apellido del visualizador"} label='Visualizador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
             </div>
 
             <div>
-              <AutocompleteInput rule={"Seleccionar o tipear apellido del interventor"} label='Interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
+              <AutocompleteInput isRequired={true} error={errors.operator} rule={"Seleccionar o tipear apellido del interventor"} label='Interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem label="Colaboracion" title="Colaboracion" isDisabled={form.typeOfIntervention !== "REG LEGALES"} value={"Colaboracion"}>
+        <AccordionItem label="Colaboracion" title="Colaboracion" isDisabled={form.typeOfIntervention !== "REG LEGALES"} key={"Colaboracion"}>
           {/*Grupo de colaboracion*/}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <InputText rule={"Caratula que figura en la nota"} name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.cover} placeholder={"Ingresar caratula"} />
+              <InputText rule={"Caratula que figura en la nota"} name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.colaboration.cover} placeholder={"Ingresar caratula"} />
             </div>
 
             <div>
-              <InputText rule={"Nº de sumario que figura en la nota"} name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.summaryNum} placeholder={"Ingresar Nº de sumario"} />
+              <InputText rule={"Nº de sumario que figura en la nota"} name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.colaboration.summaryNum} placeholder={"Ingresar Nº de sumario"} />
             </div>
           </section>
-          <p className='my-6 text-red-500 font-bold'>Personal que firma Nota / Oficio</p>
-          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <p className='my-6 text-warning font-bold'>Franja de visualizacion</p>
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <InputText rule={"Jerarquia del personal que firmo la nota"} name={"colabFirmHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationFirm.colabFirmHierarchy} placeholder={"Ingresar jerarquia"} />
+              <InputTime rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"initTime"} value={form.colaboration.rangeTime.initTime} label={"Desde"} handleChange={handleChange} />
             </div>
 
             <div>
-              <InputText rule={"L.P. del personal que firmo la nota"} name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
-            </div>
-            <div>
-              <InputText rule={"Nombres del personal que firmo la nota"} name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
-            </div>
-            <div>
-              <InputText rule={"Apellidos del personal que firmo la nota"} name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
+              <InputTime rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"endTime"} value={form.colaboration.rangeTime.endTime} label={"Hasta"} handleChange={handleChange} />
             </div>
           </section>
-          <p className='my-6 text-red-500 font-bold'>Personal que visualiza</p>
+          <p className='my-6 text-warning font-bold'>Personal que firma Nota / Oficio</p>
           <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
-              <InputText rule={"Jerarquia del personal que va a visualizar"} name={"colabWatchHierarchy"} label={"Jerarquia"} handleChange={handleChange} value={form.colaborationWatch.colabWatchHierarchy} placeholder={"Ingresar jerarquia"} />
+              <AutocompleteInput rule={"Jerarquia del personal que firmo la nota"} label='Jerarquia' data={hierarchiesList} name={"colabFirmHierarchy"} setValue={handleAutocompleteChange} value={form.colaboration.colaborationFirm.colabFirmHierarchy} />
             </div>
 
             <div>
-              <InputText rule={"L.P. del personal que va a visualizar"} name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
+              <InputText rule={"L.P. del personal que firmo la nota"} name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
             </div>
             <div>
-              <InputText rule={"Nombres del personal que va a visualizar"} name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
+              <InputText rule={"Nombres del personal que firmo la nota"} name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
             </div>
             <div>
-              <InputText rule={"Apellidos del personal que va a visualizar"} name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
+              <InputText rule={"Apellidos del personal que firmo la nota"} name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
+            </div>
+          </section>
+          <p className='my-6 text-warning font-bold'>Personal que visualiza</p>
+          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+              <AutocompleteInput rule={"Jerarquia del personal que va a visualizar"} label='Jerarquia' data={hierarchiesList} name={"colabWatchHierarchy"} setValue={handleAutocompleteChange} value={form.colaboration.colaborationWatch.colabWatchHierarchy} />
+            </div>
+
+            <div>
+              <InputText rule={"L.P. del personal que va a visualizar"} name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
+            </div>
+            <div>
+              <InputText rule={"Nombres del personal que va a visualizar"} name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
+            </div>
+            <div>
+              <InputText rule={"Apellidos del personal que va a visualizar"} name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem aria-label="Operador / interventor" title="Direccion / fecha / hora" value={"Direccion / fecha / hora"}>
+        <AccordionItem aria-label="Operador / interventor" title="Direccion / fecha / hora" key={"Direccion / fecha / hora"}>
           {/* GRUPO 3 */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -326,11 +432,11 @@ export default function Excel({
             }
           </div>
         </AccordionItem>
-        <AccordionItem aria-label="Modalidad / comisaria" title="Modalidad / comisaria" value={"Modalidad / comisaria"}>
+        <AccordionItem aria-label="Modalidad / Dependencia" title="Modalidad / Dependencia" key={"Modalidad / Dependencia"}>
           {/* GRUPO 4 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <AutocompleteInput rule={"Seleccionar o tipear una modalidad"} label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
+              <AutocompleteInput  isRequired={true} error={errors.modalitie} rule={"Seleccionar o tipear una modalidad"} label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
             </div>
 
             <div>
@@ -338,7 +444,7 @@ export default function Excel({
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem aria-label="Justicia interventora" title="Justicia interventora" value={"Justicia interventora"}>
+        <AccordionItem aria-label="Justicia interventora" title="Justicia interventora" key={"Justicia interventora"}>
           {/* GRUPO 5 */}
           <section className="flex flex-col md:block">
             <div className="w-full mb-6">
@@ -378,9 +484,9 @@ export default function Excel({
           </section>
 
         </AccordionItem>
-        <AccordionItem aria-label='Reseña' title="Reseña" value="review">
+        <AccordionItem aria-label='Reseña' title="Reseña" key="review">
           <div className='p-2'>
-            <InputTextArea label={"Reseña"} value={form.review} handleChange={handleChange} name={"review"} />
+            <InputTextArea isRequired={true} error={errors.review} label={"Reseña"} value={form.review} handleChange={handleChange} name={"review"} />
           </div>
         </AccordionItem>
       </Accordion>
@@ -392,12 +498,12 @@ export default function Excel({
         <Button color="primary" variant="solid" type='submit' isDisabled={isFormIncomplete || loading}>
           Generar Excel
         </Button>
-        <Button color="success" variant="ghost" onPress={()=>{onOpenChange(true)}}>
+        <Button color="success" variant="ghost" onPress={() => { onOpenChange(true) }}>
           Lmpiar campos
         </Button>
       </div>
       <ModalConfirm text={"¿Desea limpiar todos los campos del formulario?"} title={"Limpiar campos"} action={handleClear} actionTitle={"Limpiar"} isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} />
-    </form>
+    </form >
 
 
   );

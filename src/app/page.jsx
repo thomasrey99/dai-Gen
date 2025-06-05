@@ -15,23 +15,29 @@ const ExcelModifier = () => {
   const [loading, setIsLoading] = useState(false);
   const [dataObject, setDataObject] = useState(null);
   const [form, setForm] = useState({
-    area: '',
-    typeOfIntervention: '',
-    number: '',
-    colaborationFirm: {
-      colabFirmHierarchy: "",
-      colabFirmLp: "",
-      colabFirmNames: "",
-      colabFirmLastNames: ""
+    area: null,
+    typeOfIntervention: null,
+    number: null,
+    colaboration: {
+      colaborationFirm: {
+        colabFirmHierarchy: "",
+        colabFirmLp: "",
+        colabFirmNames: "",
+        colabFirmLastNames: ""
+      },
+      colaborationWatch: {
+        colabWatchHierarchy: "",
+        colabWatchLp: "",
+        colabWatchNames: "",
+        colabWatchLastNames: ""
+      },
+      rangeTime:{
+        initTime:"",
+        endTime:""
+      },
+      cover: "",
+      summaryNum: "",
     },
-    colaborationWatch: {
-      colabWatchHierarchy: "",
-      colabWatchLp: "",
-      colabWatchNames: "",
-      colabWatchLastNames: ""
-    },
-    cover: "",
-    summaryNum: "",
     eventDate: null,
     callTime: '',
     direction: '',
@@ -49,23 +55,25 @@ const ExcelModifier = () => {
   });
 
   useEffect(() => {
-    if (form.typeOfIntervention !== "REG LEGALES" && (form.colaborationFirm.colabFirmHierarchy || form.colaborationFirm.colabFirmLastNames || form.colaborationFirm.colabFirmNames || form.colaborationFirm.colabFirmLp || form.colaborationWatch.colabWatchHierarchy || form.colaborationWatch.colabWatchLp || form.colaborationWatch.colabWatchNames || form.colaborationWatch.colabWatchLastNames || form.cover || form.summaryNum)) {
+    if (form.typeOfIntervention !== "REG LEGALES" && (form.colaboration.colaborationFirm.colabFirmHierarchy || form.colaboration.colaborationFirm.colabFirmLastNames || form.colaboration.colaborationFirm.colabFirmNames || form.colaboration.colaborationFirm.colabFirmLp || form.colaboration.colaborationWatch.colabWatchHierarchy || form.colaboration.colaborationWatch.colabWatchLp || form.colaboration.colaborationWatch.colabWatchNames || form.colaboration.colaborationWatch.colabWatchLastNames || form.colaboration.cover || form.colaboration.summaryNum)) {
       setForm(prev => ({
         ...prev,
-        colaborationFirm: {
-          colabFirmHierarchy: "",
-          colabFirmLp: "",
-          colabFirmNames: "",
-          colabFirmLastNames: ""
-        },
-        colaborationWatch: {
-          colabWatchHierarchy: "",
-          colabWatchLp: "",
-          colabWatchNames: "",
-          colabWatchLastNames: ""
-        },
-        cover: "",
-        summaryNum: ""
+        colaboration: {
+          colaborationFirm: {
+            colabFirmHierarchy: "",
+            colabFirmLp: "",
+            colabFirmNames: "",
+            colabFirmLastNames: ""
+          },
+          colaborationWatch: {
+            colabWatchHierarchy: "",
+            colabWatchLp: "",
+            colabWatchNames: "",
+            colabWatchLastNames: ""
+          },
+          cover: "",
+          summaryNum: ""
+        }
       }))
     }
   }, [form.typeOfIntervention]);
@@ -111,7 +119,7 @@ const ExcelModifier = () => {
           />
         </div>
       </main>
-      
+
       {loading && <Loading />}
     </div>
   );

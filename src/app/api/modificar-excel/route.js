@@ -40,59 +40,21 @@ export async function POST(req) {
     // Fórmulas
     sheet.cell('C9').formula('IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")');
     sheet.cell('D9').formula('IF(C9<>"", MID(C9, 1, LEN(C9)-1), "")');
-    // Texto enriquecido en B27
-    const cellB27 = sheet.cell('B27');
+    sheet.cell('B27')
+      .formula(
+        '="Fuente: "&A2&" "&B2&CHAR(10)&' +
+        '"Hecho: "&B7&CHAR(10)&' +
+        '"Magistrado: "&B8&CHAR(10)&' +
+        '"Dependencia: "&B9&CHAR(10)&' +
+        '"Fecha del hecho: "&B5&"            Horario: "&D5&CHAR(10)&' +
+        '"Dirección: "&B6&CHAR(10)&' +
+        '"Vehiculo Damnificado:  Marca: xxxxxx Modelo: xxxxxx Color: xxxxxx Chapa Patente: xxxxxxx .-"&CHAR(10)&' +
+        '"DNI Damnificado(sin puntos):"&CHAR(10)&' +
+        '"Nombre y Apellido Damnificado/s: "'
+      )
+      .style({ wrapText: true });
 
-    if (data) {
-      cellB27.value([
-        { bold: true, underline: true, value: 'Fuente: ' },
-        { color: 'FF0000', value: data?.typeOfIntervention && data?.number ? `${data.typeOfIntervention} ${data.number}` : '(SAE, VSI, PJ, REG LEG, PRENSA) colocar numero, nombre, etc.' },
-        { value: '\n' },
 
-        { bold: true, underline: true, value: 'Hecho: ' },
-        { color: 'FF0000', value: data.modalitie || 'MODALIDAD' },
-        { value: '.-\n' },
-
-        { bold: true, underline: true, value: 'Magistrado: ' },
-        { color: 'FF0000', value: data.interveningJustice?.justice || 'JUSTICIA' },
-        { value: '.–\n' },
-
-        { bold: true, underline: true, value: 'Dependencia: ' },
-        { color: 'FF0000', value: data.jurisdiction || 'DEPENDENCIA SOLICITANTE' },
-        { value: '.-\n' },
-
-        { bold: true, underline: true, value: 'Fecha del hecho: ' },
-        { color: 'FF0000', value: data.eventDate || 'DD-MM-AAAA' },
-        { value: '                 ' },
-        { bold: true, underline: true, value: 'Horario: ' },
-        { color: 'FF0000', value: data.callTime || 'HH:mm' },
-        { value: '\n' },
-
-        { bold: true, underline: true, value: 'Dirección: ' },
-        { color: 'FF0000', value: data.direction || 'Qth' },
-        { value: '.-\n' },
-
-        { bold: true, underline: true, value: 'DNI Damnificado(sin puntos): ' },
-        { color: 'FF0000', value: '12345678' },
-        { value: '\n' },
-
-        { bold: true, underline: true, value: 'Nombre y Apellido Damnificado/s:' },
-        { value: '\n' },
-
-        { bold: true, underline: true, value: 'Vehiculo Damnificado:  Marca: ' },
-        { color: 'FF0000', value: 'xxxxxx' },
-        { bold: true, underline: true, value: ' Modelo: ' },
-        { color: 'FF0000', value: 'xxxxxx' },
-        { bold: true, underline: true, value: ' Color: ' },
-        { color: 'FF0000', value: 'xxxxxx' },
-        { bold: true, underline: true, value: ' Chapa Patente: ' },
-        { color: 'FF0000', value: 'xxxxxx' },
-        { value: ' .-' }
-      ]);
-    } else {
-      // 👇 No seteamos nada, dejamos el contenido original del Excel
-      sheet.cell("B27").value("puto")
-    }
 
 
 

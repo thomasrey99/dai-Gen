@@ -90,20 +90,26 @@ const PdfReader = ({
         area: '',
         typeOfIntervention: '',
         number: '',
-        colaborationFirm: {
-          colabFirmHierarchy: "",
-          colabFirmLp: "",
-          colabFirmNames: "",
-          colabFirmLastNames: ""
+        colaboration: {
+          colaborationFirm: {
+            colabFirmHierarchy: "",
+            colabFirmLp: "",
+            colabFirmNames: "",
+            colabFirmLastNames: ""
+          },
+          colaborationWatch: {
+            colabWatchHierarchy: "",
+            colabWatchLp: "",
+            colabWatchNames: "",
+            colabWatchLastNames: ""
+          },
+          rangeTime: {
+            initTime: "",
+            endTime: ""
+          },
+          cover: "",
+          summaryNum: "",
         },
-        colaborationWatch: {
-          colabWatchHierarchy: "",
-          colabWatchLp: "",
-          colabWatchNames: "",
-          colabWatchLastNames: ""
-        },
-        cover: "",
-        summaryNum: "",
         eventDate: null,
         callTime: '',
         direction: '',

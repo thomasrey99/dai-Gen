@@ -21,6 +21,7 @@
     "@heroui/switch": "2.2.17",
     "@heroui/system": "2.4.15",
     "@heroui/theme": "2.4.15",
+    "@hookform/resolvers": "^5.0.1",
     "@react-aria/ssr": "3.9.8",
     "@react-aria/visually-hidden": "3.8.22",
     "@react-google-maps/api": "^2.20.6",
@@ -42,9 +43,11 @@
     "pdfjs-dist": "^3.11.174",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-hook-form": "^7.57.0",
     "sweetalert2": "^11.22.0",
     "whatwg-url": "^14.2.0",
-    "xlsx-populate": "^1.21.0"
+    "xlsx-populate": "^1.21.0",
+    "zod": "^3.25.48"
   },
   "devDependencies": {
     "@eslint/compat": "1.2.8",

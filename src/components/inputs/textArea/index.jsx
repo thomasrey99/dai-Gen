@@ -1,8 +1,11 @@
 const { Textarea } = require("@heroui/input")
 
-const InputTextArea = ({ name, handleChange, label, value }) => {
+const InputTextArea = ({ isRequired, error, name, handleChange, label, value }) => {
   return (
     <Textarea
+      isRequired={isRequired || false}
+      isInvalid={error?true:false}
+      errorMessage={error?error:""}
       disableAutosize
       classNames={{
         base: "w-full",

@@ -1,7 +1,7 @@
 import { Tooltip } from "@heroui/react";
 import { useEffect, useRef } from "react";
 
-export default function AddressAutocomplete({ value, setValue, rule}) {
+export default function AddressAutocomplete({ value, setValue, rule }) {
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -88,12 +88,20 @@ export default function AddressAutocomplete({ value, setValue, rule}) {
         };
 
         const getFormattedAddress = (place) => {
+            const formatAddress = (address) => {
+                if (typeof address !== 'string') return address;
+
+                return address
+                    .replace(/&/g, 'y')                    // Reemplaza todos los "&" por "y"
+                    .replace(/\bAv\.\s*/gi, 'Avenida ');   // Reemplaza "Av." por "Avenida"
+            };
+
             const components = place.address_components;
 
             const intersection = components.find((comp) =>
                 comp.types.includes("intersection")
             );
-            if (intersection) return intersection.short_name;
+            if (intersection) return formatAddress(intersection.short_name);
 
             const route = components.find((comp) =>
                 comp.types.includes("route")
@@ -102,13 +110,15 @@ export default function AddressAutocomplete({ value, setValue, rule}) {
                 comp.types.includes("street_number")
             )?.short_name;
 
+            let address = "";
+
             if (route && streetNumber) {
-                return `${route.short_name} ${streetNumber}`;
+                address = `${route.short_name} ${streetNumber}`;
+            } else if (route) {
+                address = route.short_name;
             }
 
-            if (route) return route.short_name;
-
-            return "";
+            return formatAddress(address);
         };
 
         const interval = setInterval(() => {
