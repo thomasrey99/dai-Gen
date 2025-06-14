@@ -87,9 +87,14 @@ const PdfReader = ({
     try {
       setIsLoading(true);
       setForm({
-        area: '',
-        typeOfIntervention: '',
-        number: '',
+        area: null,
+        typeOfIntervention: null,
+        number: null,
+        injured: {
+          injuredName: "",
+          injuredLastName: "",
+          injuredDni: ""
+        },
         colaboration: {
           colaborationFirm: {
             colabFirmHierarchy: "",
@@ -156,6 +161,11 @@ const PdfReader = ({
       setForm({
         ...form,
         number: parsed.number || '',
+        injured: {
+          injuredName: parsed.injuredName || '',
+          injuredLastName: parsed.injuredLastName || '',
+          injuredDni: parsed.injuredDni || ''
+        },
         eventDate: parseDate(parsed?.eventDate) || '',
         callTime: parsed.callTime || '',
         direction: parsed.direction || '',

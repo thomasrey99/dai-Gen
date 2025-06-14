@@ -18,6 +18,11 @@ const ExcelModifier = () => {
     area: null,
     typeOfIntervention: null,
     number: null,
+    injured:{
+      injuredName:"",
+      injuredLastName:"",
+      injuredDni:""
+    },
     colaboration: {
       colaborationFirm: {
         colabFirmHierarchy: "",

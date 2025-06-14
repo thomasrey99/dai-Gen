@@ -1,7 +1,7 @@
 import { DatePicker, Tooltip } from '@heroui/react';
 import { I18nProvider } from '@react-aria/i18n';
 
-const InputDate = ({ value, handleChange, label, rule }) => {
+const InputDate = ({ isRequired, value, handleChange, label, rule }) => {
     const onHandleChange = (e) => {
         if (!e) {
             handleChange(null);
@@ -19,8 +19,9 @@ const InputDate = ({ value, handleChange, label, rule }) => {
                 placement="bottom-start"
             >
                 <DatePicker
+                    isRequired={isRequired}
                     className='w-full'
-                    variant='faded'
+                    variant='flat'
                     value={value || null}
                     onChange={onHandleChange}
                     label={label}

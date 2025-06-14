@@ -22,7 +22,7 @@ export const ClockCircleLinearIcon = (props) => {
     );
 };
 
-const InputTime = ({ label, name, value, handleChange, rule }) => {
+const InputTime = ({ isRequired, label, name, value, handleChange, rule }) => {
     return (
         <>
             <Tooltip
@@ -31,11 +31,12 @@ const InputTime = ({ label, name, value, handleChange, rule }) => {
                 placement="bottom-start"
             >
                 <TimeInput
+                    isRequired={isRequired}
                     startContent={
                         <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                     }
                     className="w-full"
-                    variant="faded"
+                    variant="flat"
                     value={value ? parseTime(value) : null} // convierte el string a TimeValue
                     name={name}
                     granularity="second"

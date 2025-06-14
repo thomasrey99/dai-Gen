@@ -1,5 +1,5 @@
 export const areasList=[
-    "DEAI",
+    "DAI",
     "SARIM",
-    "DEAI Y SARIM"
+    "DAI Y SARIM"
 ]

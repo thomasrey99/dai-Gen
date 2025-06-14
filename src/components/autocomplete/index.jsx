@@ -1,7 +1,7 @@
 import { Autocomplete, AutocompleteItem, Tooltip } from "@heroui/react";
 
 
-export default function AutocompleteInput({ isRequired=false, name, data, label = "seleccionar", setValue, value, rule, error }) {
+export default function AutocompleteInput({ isRequired = false, name, data, label = "seleccionar", setValue, value, rule }) {
     const handleChange = (value) => {
         if (!value) {
             setValue(name, "")
@@ -10,7 +10,6 @@ export default function AutocompleteInput({ isRequired=false, name, data, label 
             return;
         }
     }
-    console.log(error)
     return (
         <>
             <Tooltip
@@ -21,9 +20,6 @@ export default function AutocompleteInput({ isRequired=false, name, data, label 
                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
                     <Autocomplete
                         isRequired={isRequired}
-                        errorMessage={error || ""}
-                        color={value===null?"default":error?"danger":"default"}
-                        isInvalid={error?true:false}
                         allowsCustomValue
                         label={label}
                         className="w-full"
@@ -31,8 +27,8 @@ export default function AutocompleteInput({ isRequired=false, name, data, label 
                         defaultItems={data || []}
                         onInputChange={handleChange}
                         onSelectionChange={handleChange}
-                        inputValue={value===null?"":value}
-                        variant="faded"
+                        inputValue={value === null ? "" : value}
+                        variant="flat"
                     >
                         {data.map((item) => (
                             <AutocompleteItem key={item}>{item}</AutocompleteItem>
