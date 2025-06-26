@@ -6,7 +6,6 @@ import {justicesList} from "@/utils/data/justice"
 export default function JusticeSection({
     form,
     errors,
-    handleAutocompleteChange,
     handleChange
 }) {
     return (
@@ -18,7 +17,7 @@ export default function JusticeSection({
                         label="Justicia"
                         data={justicesList}
                         name="justice"
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.interveningJustice.justice}
                     />
                     <ErrorMessage error={errors.justice} />

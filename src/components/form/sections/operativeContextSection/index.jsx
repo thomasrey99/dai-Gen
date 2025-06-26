@@ -3,7 +3,11 @@ import ErrorMessage from "@/components/errorMessage";
 import { jurisdictionsList } from "@/utils/data/jurisdictions";
 import { modalitiesList } from "@/utils/data/modalities"
 
-export default function OperativeContextSection({ form, errors, handleAutocompleteChange }) {
+export default function OperativeContextSection({
+    form,
+    errors,
+    handleChange
+}) {
     return (
         <>
             <section
@@ -17,7 +21,7 @@ export default function OperativeContextSection({ form, errors, handleAutocomple
                         label='Modalidad'
                         data={modalitiesList}
                         name={"modalitie"}
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.modalitie}
                     />
                     <ErrorMessage
@@ -31,7 +35,7 @@ export default function OperativeContextSection({ form, errors, handleAutocomple
                         label='Dependencia'
                         data={jurisdictionsList}
                         name={"jurisdiction"}
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.jurisdiction}
                     />
                     <ErrorMessage

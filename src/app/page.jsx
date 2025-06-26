@@ -72,7 +72,13 @@ const ExcelModifier = () => {
   )
 
   useEffect(() => {
-    if (form.typeOfIntervention !== "REG LEGALES" && (form.colaboration.colaborationFirm.colabFirmHierarchy || form.colaboration.colaborationFirm.colabFirmLastNames || form.colaboration.colaborationFirm.colabFirmNames || form.colaboration.colaborationFirm.colabFirmLp || form.colaboration.colaborationWatch.colabWatchHierarchy || form.colaboration.colaborationWatch.colabWatchLp || form.colaboration.colaborationWatch.colabWatchNames || form.colaboration.colaborationWatch.colabWatchLastNames || form.colaboration.cover || form.colaboration.summaryNum)) {
+    if (form.typeOfIntervention === "REG LEGALES") return;
+    const firmFields = Object.values(form.colaboration.colaborationFirm);
+    const watchFields = Object.values(form.colaboration.colaborationWatch);
+    const rangeTimeFields=Object.values(form.colaboration.rangeTime)
+    const otherFields = [form.colaboration.cover, form.colaboration.summaryNum];
+    const hasAnyColabData = [...firmFields, ...watchFields, ...rangeTimeFields, ...otherFields].some(value => value);
+    if (hasAnyColabData) {
       setForm(prev => ({
         ...prev,
         colaboration: {
@@ -88,18 +94,23 @@ const ExcelModifier = () => {
             colabWatchNames: "",
             colabWatchLastNames: ""
           },
+          rangeTime: {
+            initTime: "",
+            endTime: ""
+          },
           cover: "",
-          summaryNum: ""
-        }
-      }))
+          summaryNum: "",
+        },
+        callTime: ""
+      }));
     }
   }, [form.typeOfIntervention]);
 
-  useEffect(()=>{ 
-    console.log("errores:", errors)
-    console.log(form)
-  },[form])
 
+  useEffect(()=>{
+    console.log(errors)
+  }, [form])
+  
   return (
     <div
       className="relative bg-black flex flex-col min-h-screen w-full text-white font-sans"

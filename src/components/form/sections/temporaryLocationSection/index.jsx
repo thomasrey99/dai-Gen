@@ -2,12 +2,12 @@ import ErrorMessage from "@/components/errorMessage";
 import AddressAutocomplete from "@/components/inputs/inputPlace";
 import InputDate from "@/components/inputs/inputDate";
 import InputTime from "@/components/inputs/inputTime";
+import Map from "@/components/map";
 
 export default function TemporaryLocationSection({
     form,
     errors,
-    handleChange,
-    handleDateChange
+    handleChange
 }) {
     return (
         <>
@@ -32,7 +32,7 @@ export default function TemporaryLocationSection({
                     <InputDate
                         rule={"Solo tipear dd/mm/aaaa (se formatea solo a dd-mm-aaaa)"}
                         value={form.eventDate}
-                        handleChange={handleDateChange}
+                        handleChange={handleChange}
                         label={"Fecha del hecho"}
                     />
                     <ErrorMessage

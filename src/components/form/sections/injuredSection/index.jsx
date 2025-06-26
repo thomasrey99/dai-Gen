@@ -1,7 +1,11 @@
 import ErrorMessage from "@/components/errorMessage";
 import InputText from "@/components/inputs/inputText";
 
-export default function InjuredSection({ form, errors, handleChange }) {
+export default function InjuredSection({
+    form,
+    errors,
+    handleChange
+}) {
     return (
         <>
             <section

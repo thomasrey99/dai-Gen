@@ -7,8 +7,7 @@ import { hierarchiesList } from "@/utils/data/hierarchies";
 export default function ColaborationSection({
     form,
     errors,
-    handleChange,
-    handleAutocompleteChange
+    handleChange
 }) {
     return (
         <>
@@ -83,7 +82,7 @@ export default function ColaborationSection({
                         rule={"Jerarquia del personal que firmo la nota"}
                         label='Jerarquia' data={hierarchiesList}
                         name={"colabFirmHierarchy"}
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.colaboration.colaborationFirm.colabFirmHierarchy}
                     />
                     <ErrorMessage
@@ -143,7 +142,8 @@ export default function ColaborationSection({
                         rule={"Jerarquia del personal que va a visualizar"}
                         label='Jerarquia' data={hierarchiesList}
                         name={"colabWatchHierarchy"}
-                        setValue={handleAutocompleteChange}
+                        value={form.colaboration.colaborationWatch.colabWatchHierarchy}
+                        setValue={handleChange}
                     />
                     <ErrorMessage
                         error={errors.colabWatchHierarchy}

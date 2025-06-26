@@ -1,7 +1,8 @@
 import { areasList } from "@/utils/data/areas";
 
-export const validations = (name, value) => {
+export const validations = (name, value, form = {}) => {
   const errors = {};
+  console.log("form actual", form)
   const requiredFields = [
     "area",
     "typeOfIntervention",
@@ -15,9 +16,29 @@ export const validations = (name, value) => {
     "review",
   ];
 
-  if (requiredFields.includes(name)) {
+  const requiredIfRegLegales = [
+    "colabFirmHierarchy",
+    "colabFirmLp",
+    "colabFirmNames",
+    "colabFirmLastNames",
+    "colabWatchHierarchy",
+    "colabWatchLp",
+    "colabWatchNames",
+    "colabWatchLastNames",
+    "initTime",
+    "endTime",
+    "cover",
+    "summaryNum"
+  ];
+
+  const isRequired =
+    requiredFields.includes(name) ||
+    (form?.typeOfIntervention === "REG LEGALES" &&
+      requiredIfRegLegales.includes(name));
+
+      console.log(isRequired)
+  if (isRequired) {
     if (name === "eventDate") {
-      // Validar que sea un objeto con las propiedades de CalendarDate
       const isValidDateObject =
         value &&
         typeof value === "object" &&
@@ -25,17 +46,11 @@ export const validations = (name, value) => {
         "month" in value &&
         "year" in value;
 
-      if (!isValidDateObject) {
-        errors[name] = "Campo requerido";
-      } else {
-        errors[name] = "";
-      }
+      errors[name] = isValidDateObject ? "" : "Campo requerido";
     } else {
-      if (typeof value !== "string" || value.trim().length === 0) {
-        errors[name] = "Campo requerido";
-      } else {
-        errors[name] = "";
-      }
+      errors[name] = (typeof value !== "string" || value.trim() === "")
+        ? "Campo requerido"
+        : "";
     }
   }
 

@@ -12,6 +12,9 @@ import TemporaryLocationSection from './sections/temporaryLocationSection';
 import OperativeContextSection from './sections/operativeContextSection';
 import JusticeSection from './sections/justiceSection';
 import ReviewSection from './sections/reviewSection';
+import Toast from '../Toast';
+import { clearForm } from '@/utils/clearForm';
+import handleInputChange from '@/utils/handlers/handleInputChange';
 
 
 export const AnchorIcon = (props) => {
@@ -51,167 +54,8 @@ export default function Excel({
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const handleChange = async (e) => {
-    const { name, value } = e.target;
-    const upperValue = value.toUpperCase();
-
-    // Manejador especial para campos de "injured"
-    if (["injuredDni", "injuredName", "injuredLastName"].includes(name)) {
-      if (name === "injuredDni") {
-        if (value === "" || !/^\d+$/.test(value)) return; // DNI no válido
-        setForm(prev => ({
-          ...prev,
-          injured: {
-            ...prev.injured,
-            [name]: value,
-          },
-        }));
-      } else {
-        setForm(prev => ({
-          ...prev,
-          injured: {
-            ...prev.injured,
-            [name]: upperValue,
-          },
-        }));
-      }
-      validateField(name, value);
-      return;
-    }
-
-    // Mapeo de rutas de campos anidados
-    const nestedPaths = {
-      colaborationFirm: ["colabFirmLp", "colabFirmNames", "colabFirmLastNames"],
-      colaborationWatch: ["colabWatchLp", "colabWatchNames", "colabWatchLastNames"],
-      rangeTime: ["initTime", "endTime"],
-      colaboration: ["cover", "summaryNum"],
-      interveningJustice: ["fiscal", "secretariat"],
-    };
-
-    let updated = false;
-
-    // Buscar en qué grupo anidado está el campo
-    for (const [group, fields] of Object.entries(nestedPaths)) {
-      if (fields.includes(name)) {
-        if (group === "colaboration" || group === "rangeTime") {
-          setForm(prev => ({
-            ...prev,
-            colaboration: {
-              ...prev.colaboration,
-              [group]: {
-                ...prev.colaboration[group],
-                [name]: upperValue,
-              },
-            },
-          }));
-        } else if (group === "colaborationFirm" || group === "colaborationWatch") {
-          setForm(prev => ({
-            ...prev,
-            colaboration: {
-              ...prev.colaboration,
-              [group]: {
-                ...prev.colaboration[group],
-                [name]: upperValue,
-              },
-            },
-          }));
-        } else {
-          // interveningJustice
-          setForm(prev => ({
-            ...prev,
-            interveningJustice: {
-              ...prev.interveningJustice,
-              [name]: upperValue,
-            },
-          }));
-        }
-        updated = true;
-        break;
-      }
-    }
-
-    // Si no está en ningún grupo anidado, actualizar directamente
-    if (!updated) {
-      setForm(prev => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
-
-    validateField(name, value);
-  };
-
-  // Validación aislada
-  const validateField = (name, value) => {
-    const validationErrors = validations(name, value);
-    setErrors(prev => ({
-      ...prev,
-      [name]: validationErrors[name],
-    }));
-  };
-
-
-
-
-  const handleAutocompleteChange = async (name, value) => {
-    // Aplicar uppercase salvo para los dos campos especiales
-    const shouldUppercase = name !== "colabFirmHierarchy" && name !== "colabWatchHierarchy";
-    const transformedValue = shouldUppercase ? value.toUpperCase() : value;
-
-    let updatedForm = { ...form };
-
-    if (name === "colabFirmHierarchy") {
-      updatedForm = {
-        ...form,
-        colaboration: {
-          ...form.colaboration,
-          colaborationFirm: {
-            ...form.colaboration.colaborationFirm,
-            [name]: transformedValue,
-          },
-        },
-      };
-    } else if (name === "colabWatchHierarchy") {
-      updatedForm = {
-        ...form,
-        colaboration: {
-          ...form.colaboration,
-          colaborationWatch: {
-            ...form.colaboration.colaborationWatch,
-            [name]: transformedValue,
-          },
-        },
-      };
-    } else if (name === "justice") {
-      updatedForm = {
-        ...form,
-        interveningJustice: {
-          ...form.interveningJustice,
-          [name]: transformedValue,
-        },
-      };
-    } else {
-      updatedForm = {
-        ...form,
-        [name]: transformedValue,
-      };
-    }
-
-    setForm(updatedForm);
-
-    const validationErrors = validations(name, transformedValue);
-    setErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: validationErrors[name],
-    }));
-  };
-
-  const handleDateChange = (date) => {
-    setForm({
-      ...form,
-      eventDate: date
-    })
-  }
+  
+  const handleChange=handleInputChange(form, setForm, setErrors)
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -241,79 +85,6 @@ export default function Excel({
     link.download = `${form.typeOfIntervention}-${form.number}.xlsx`;
     link.click();
     setIsLoading(false);
-  };
-
-  const handleClear = () => {
-    try {
-      onOpenChange(false)
-      setForm({
-        area: null,
-        typeOfIntervention: null,
-        number: null,
-        injured: {
-          injuredName: "",
-          injuredLastName: "",
-          injuredDni: ""
-        },
-        colaboration: {
-          colaborationFirm: {
-            colabFirmHierarchy: "",
-            colabFirmLp: "",
-            colabFirmNames: "",
-            colabFirmLastNames: ""
-          },
-          colaborationWatch: {
-            colabWatchHierarchy: "",
-            colabWatchLp: "",
-            colabWatchNames: "",
-            colabWatchLastNames: ""
-          },
-          rangeTime: {
-            initTime: "",
-            endTime: ""
-          },
-          cover: "",
-          summaryNum: "",
-        },
-        eventDate: null,
-        callTime: '',
-        direction: '',
-        placeId: "",
-        jurisdiction: '',
-        interveningJustice: {
-          justice: '',
-          fiscal: '',
-          secretariat: '',
-        },
-        modalitie: '',
-        operator: '',
-        intervener: '',
-        review: '',
-      });
-
-      setErrors(
-        {
-          area: "Campo requerido",
-          typeOfIntervention: "Campo requerido",
-          number: "Campo requerido",
-          eventDate: "Campo requerido",
-          callTime: "Campo requerido",
-          direction: "Campo requerido",
-          modalitie: "Campo requerido",
-          operator: "Campo requerido",
-          intervener: "Campo requerido",
-          review: "Campo requerido"
-        }
-      )
-
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      setFileName("")
-      setPdfURL(null);
-      setDataObject(null);
-      temporaryLocationSection("success", "Campos limpios!")
-    } catch (error) {
-      temporaryLocationSection("error", "Error al borrar los campos")
-    }
   };
 
 
@@ -350,7 +121,6 @@ export default function Excel({
           <EventSection
             errors={errors}
             handleChange={handleChange}
-            handleAutocompleteChange={handleAutocompleteChange}
             form={form}
           />
         </AccordionItem>
@@ -365,7 +135,7 @@ export default function Excel({
           <OperatorSection
             form={form}
             errors={errors}
-            handleAutocompleteChange={handleAutocompleteChange}
+            handleChange={handleChange}
           />
         </AccordionItem>
 
@@ -395,7 +165,6 @@ export default function Excel({
             form={form}
             errors={errors}
             handleChange={handleChange}
-            handleAutocompleteChange={handleAutocompleteChange}
           />
         </AccordionItem>
         <AccordionItem
@@ -410,7 +179,6 @@ export default function Excel({
             form={form}
             errors={errors}
             handleChange={handleChange}
-            handleDateChange={handleDateChange}
           />
         </AccordionItem>
         <AccordionItem
@@ -424,7 +192,7 @@ export default function Excel({
           <OperativeContextSection
             form={form}
             errors={errors}
-            handleAutocompleteChange={handleAutocompleteChange}
+            handleChange={handleChange}
           />
         </AccordionItem>
         <AccordionItem
@@ -438,7 +206,6 @@ export default function Excel({
           <JusticeSection
             form={form}
             errors={errors}
-            handleAutocompleteChange={handleAutocompleteChange}
             handleChange={handleChange}
           />
         </AccordionItem>
@@ -457,15 +224,42 @@ export default function Excel({
         </AccordionItem>
       </Accordion>
       {/* BOTONES */}
-      <div className="flex flex-col md:flex-row gap-4 mt-6">
-        <Button color="primary" variant="ghost" type='submit' isDisabled={incomplete || loading}>
+      <div
+        className="flex flex-col md:flex-row gap-4 mt-6"
+      >
+        <Button
+          color="primary"
+          variant="ghost"
+          type='submit'
+          isDisabled={incomplete || loading}
+        >
           Generar Excel
         </Button>
-        <Button color="success" variant="ghost" onPress={() => { onOpenChange(true) }}>
+        <Button
+          color="success"
+          variant="ghost"
+          onPress={() => { onOpenChange(true) }}
+        >
           Lmpiar campos
         </Button>
       </div>
-      <ModalConfirm text={"¿Desea limpiar todos los campos del formulario?"} title={"Limpiar campos"} action={handleClear} actionTitle={"Limpiar"} isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} />
+      <ModalConfirm
+        text={"¿Desea limpiar todos los campos del formulario?"}
+        title={"Limpiar campos"}
+        action={() => clearForm({
+          onOpenChange,
+          setForm,
+          setErrors,
+          fileInputRef,
+          setPdfURL,
+          setFileName,
+          setDataObject
+        })}
+        actionTitle={"Limpiar"}
+        isOpen={isOpen}
+        onOpen={onOpen}
+        onOpenChange={onOpenChange}
+      />
     </form >
 
 

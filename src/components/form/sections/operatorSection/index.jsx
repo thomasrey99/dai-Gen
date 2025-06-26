@@ -1,9 +1,13 @@
 import AutocompleteInput from "@/components/inputs/autocomplete";
 import ErrorMessage from "@/components/errorMessage";
-import {operatorsList} from "@/utils/data/operators"
-import {intervenersList} from "@/utils/data/interveners"
+import { operatorsList } from "@/utils/data/operators"
+import { intervenersList } from "@/utils/data/interveners"
 
-export default function OperatorSection({ form, errors, handleAutocompleteChange }) {
+export default function OperatorSection({
+    form,
+    errors,
+    handleChange
+}) {
     return (
         <>
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -13,7 +17,7 @@ export default function OperatorSection({ form, errors, handleAutocompleteChange
                         error={errors.operator}
                         rule={"Seleccionar o tipear apellido del visualizador"}
                         label='Visualizador' data={operatorsList}
-                        name={"operator"} setValue={handleAutocompleteChange}
+                        name={"operator"} setValue={handleChange}
                         value={form.operator}
                     />
                     <ErrorMessage
@@ -29,7 +33,7 @@ export default function OperatorSection({ form, errors, handleAutocompleteChange
                         label='Interventor'
                         data={intervenersList}
                         name={"intervener"}
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.intervener}
                     />
                     <ErrorMessage

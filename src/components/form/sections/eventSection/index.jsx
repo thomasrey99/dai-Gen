@@ -8,7 +8,6 @@ import { typesOfInterventionList } from "@/utils/data/typeOfInterventions"
 export default function EventSection({
     form,
     errors,
-    handleAutocompleteChange,
     handleChange
 }) {
     return (
@@ -22,7 +21,7 @@ export default function EventSection({
                         label="Área"
                         data={areasList}
                         name="area"
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.area}
                     />
                     <ErrorMessage error={errors.area} />
@@ -36,7 +35,7 @@ export default function EventSection({
                         label="Tipo de visualización"
                         data={typesOfInterventionList}
                         name="typeOfIntervention"
-                        setValue={handleAutocompleteChange}
+                        setValue={handleChange}
                         value={form.typeOfIntervention}
                     />
                     <ErrorMessage error={errors.typeOfIntervention} />
