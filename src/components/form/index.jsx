@@ -1,26 +1,17 @@
 'use client';
-import { modalitiesList } from '../../../public/data/modalities';
-import { operatorsList } from '../../../public/data/operators';
-import { intervenersList } from '../../../public/data/interveners';
-import { areasList } from '../../../public/data/areas';
-import { typesOfInterventionList } from '../../../public/data/typeOfInterventions';
-import { jurisdictionsList } from '../../../public/data/jurisdictions';
-import { justicesList } from '../../../public/data/justice';
-import { hierarchiesList } from "../../../public/data/hierarchies"
-import ModalAlert from '../modalAlert';
-import AutocompleteInput from '../autocomplete';
-import InputText from '../inputs/inputText';
-import InputTime from '../inputs/inputTime';
-import InputDate from '../inputs/inputDate';
-import InputTextArea from '../inputs/textArea';
+
+import temporaryLocationSection from '../Toast';
 import { Accordion, AccordionItem, Button, Link, useDisclosure } from "@heroui/react";
-import AddressAutocomplete from '../inputPlace';
-import Map from '../map';
 import ModalConfirm from '../modal';
-import { useEffect, useState } from 'react';
 import { validations } from '@/utils/validations';
-import InputNumber from '../inputs/inputNumber';
-import ErrorMessage from '../errorMessage';
+import EventSection from './sections/eventSection';
+import OperatorSection from './sections/operatorSection';
+import InjuredSection from './sections/injuredSection';
+import ColaborationSection from './sections/colaborationSection';
+import TemporaryLocationSection from './sections/temporaryLocationSection';
+import OperativeContextSection from './sections/operativeContextSection';
+import JusticeSection from './sections/justiceSection';
+import ReviewSection from './sections/reviewSection';
 
 
 export const AnchorIcon = (props) => {
@@ -239,7 +230,7 @@ export default function Excel({
 
     if (!res.ok) {
       setIsLoading(false);
-      ModalAlert('error', 'Error al generar el archivo');
+      temporaryLocationSection('error', 'Error al generar el archivo');
       return;
     }
 
@@ -319,9 +310,9 @@ export default function Excel({
       setFileName("")
       setPdfURL(null);
       setDataObject(null);
-      ModalAlert("success", "Campos limpios!")
+      temporaryLocationSection("success", "Campos limpios!")
     } catch (error) {
-      ModalAlert("error", "Error al borrar los campos")
+      temporaryLocationSection("error", "Error al borrar los campos")
     }
   };
 
@@ -356,22 +347,12 @@ export default function Excel({
           title="Area / Tipo / Nº"
           key={"Area / Tipo / Nº"}>
           {/* GRUPO 1 */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <AutocompleteInput isRequired={true} error={errors.area} rule={"DAI / SARIM / DAI Y SARIM"} label='Area' data={areasList} name={"area"} setValue={handleAutocompleteChange} value={form.area} />
-              <ErrorMessage error={errors.area} />
-            </div>
-
-            <div>
-              <AutocompleteInput isRequired={true} error={errors.typeOfIntervention} rule={"SAE / REG LEGALES / V.S.I / P.J. / PRENSA / V.C.A"} label='Tipo de visualizacion' data={typesOfInterventionList} name={"typeOfIntervention"} setValue={handleAutocompleteChange} value={form.typeOfIntervention} />
-              <ErrorMessage error={errors.typeOfIntervention} />
-            </div>
-
-            <div>
-              <InputText isRequired={true} error={errors.number} rule={"Nº de SAE/REG LEGALES o Nombre"} name={"number"} label={"Nro / Nombre"} handleChange={handleChange} value={form.number} placeholder={"Ingresar numero"} />
-              <ErrorMessage error={errors.number} />
-            </div>
-          </section>
+          <EventSection
+            errors={errors}
+            handleChange={handleChange}
+            handleAutocompleteChange={handleAutocompleteChange}
+            form={form}
+          />
         </AccordionItem>
         <AccordionItem
           aria-label="Visualizador / interventor"
@@ -381,17 +362,11 @@ export default function Excel({
           subtitle={(errors.operator || errors.intervener) ? "Revisar" : ""}
         >
           {/* GRUPO 2 */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <AutocompleteInput isRequired={true} error={errors.operator} rule={"Seleccionar o tipear apellido del visualizador"} label='Visualizador' data={operatorsList} name={"operator"} setValue={handleAutocompleteChange} value={form.operator} />
-              <ErrorMessage error={errors.operator} />
-            </div>
-
-            <div>
-              <AutocompleteInput isRequired={true} error={errors.intervener} rule={"Seleccionar o tipear apellido del interventor"} label='Interventor' data={intervenersList} name={"intervener"} setValue={handleAutocompleteChange} value={form.intervener} />
-              <ErrorMessage error={errors.intervener} />
-            </div>
-          </section>
+          <OperatorSection
+            form={form}
+            errors={errors}
+            handleAutocompleteChange={handleAutocompleteChange}
+          />
         </AccordionItem>
 
         {/*Grupo damnificado*/}
@@ -402,20 +377,11 @@ export default function Excel({
           classNames={{ subtitle: "text-danger" }}
           subtitle={(errors.injuredName || errors.injuredLastName || errors.injuredDni) ? "Revisar" : ""}
         >
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <InputText rule={"Nombre del damnificado"} name={"injuredName"} label={"Nombre"} handleChange={handleChange} value={form.injured.injuredName} />
-              <ErrorMessage error={errors.injuredName} />
-            </div>
-            <div>
-              <InputText rule={"Apellido del damnificado"} name={"injuredLastName"} label={"Apellido"} handleChange={handleChange} value={form.injured.injuredLastName} placeholder={"Ingresar caratula"} />
-              <ErrorMessage error={errors.injuredLastName} />
-            </div>
-            <div>
-              <InputText rule={"Dni del damnificado"} name={"injuredDni"} label={"Dni"} handleChange={handleChange} value={form.injured.injuredDni} />
-              <ErrorMessage error={errors.injuredDni} />
-            </div>
-          </section>
+          <InjuredSection
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+          />
         </AccordionItem>
         <AccordionItem
           label="Colaboracion"
@@ -425,111 +391,27 @@ export default function Excel({
           subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Revisar" : ""}
         >
           {/*Grupo de colaboracion*/}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <InputText rule={"Caratula que figura en la nota"} name={"cover"} label={"Caratula"} handleChange={handleChange} value={form.colaboration.cover} placeholder={"Ingresar caratula"} />
-              <ErrorMessage error={errors.cover} />
-            </div>
-
-            <div>
-              <InputText rule={"Nº de sumario que figura en la nota"} name={"summaryNum"} label={"Nº de sumario"} handleChange={handleChange} value={form.colaboration.summaryNum} placeholder={"Ingresar Nº de sumario"} />
-              <ErrorMessage error={errors.summaryNum} />
-            </div>
-          </section>
-          <p className='my-6 text-warning font-bold'>Franja de visualizacion</p>
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <InputTime rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"initTime"} value={form.colaboration.rangeTime.initTime} label={"Desde"} handleChange={handleChange} />
-              <ErrorMessage error={errors.initTime} />
-            </div>
-
-            <div>
-              <InputTime rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"endTime"} value={form.colaboration.rangeTime.endTime} label={"Hasta"} handleChange={handleChange} />
-              <ErrorMessage error={errors.endTime} />
-            </div>
-          </section>
-          <p className='my-6 text-warning font-bold'>Personal que firma Nota / Oficio</p>
-          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <AutocompleteInput rule={"Jerarquia del personal que firmo la nota"} label='Jerarquia' data={hierarchiesList} name={"colabFirmHierarchy"} setValue={handleAutocompleteChange} value={form.colaboration.colaborationFirm.colabFirmHierarchy} />
-              <ErrorMessage error={errors.colabFirmHierarchy} />
-            </div>
-
-            <div>
-              <InputText rule={"L.P. del personal que firmo la nota"} error={errors.colabFirmLp} name={"colabFirmLp"} label={"L.P."} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmLp} placeholder={"Ingresar L.P."} />
-              <ErrorMessage error={errors.colabFirmLp} />
-            </div>
-            <div>
-              <InputText rule={"Nombres del personal que firmo la nota"} name={"colabFirmNames"} label={"Nombres"} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmNames} placeholder={"Ingresar nombres"} />
-              <ErrorMessage error={errors.colabFirmNames} />
-            </div>
-            <div>
-              <InputText rule={"Apellidos del personal que firmo la nota"} name={"colabFirmLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaboration.colaborationFirm.colabFirmLastNames} placeholder={"Ingresar apellidos"} />
-              <ErrorMessage error={errors.colabFirmLastNames} />
-            </div>
-          </section>
-          <p className='my-6 text-warning font-bold'>Personal que visualiza</p>
-          <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div>
-              <AutocompleteInput rule={"Jerarquia del personal que va a visualizar"} label='Jerarquia' data={hierarchiesList} name={"colabWatchHierarchy"} setValue={handleAutocompleteChange} value={form.colaboration.colaborationWatch.colabWatchHierarchy} />
-              <ErrorMessage error={errors.colabWatchHierarchy} />
-            </div>
-
-            <div>
-              <InputText rule={"L.P. del personal que va a visualizar"} error={errors.colabWatchLp} name={"colabWatchLp"} label={"L.P."} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchLp} placeholder={"Ingresar L.P."} />
-              <ErrorMessage error={errors.colabWatchLp} />
-            </div>
-            <div>
-              <InputText rule={"Nombres del personal que va a visualizar"} name={"colabWatchNames"} label={"Nombres"} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchNames} placeholder={"Ingresar nombres"} />
-              <ErrorMessage error={errors.colabWatchNames} />
-            </div>
-            <div>
-              <InputText rule={"Apellidos del personal que va a visualizar"} name={"colabWatchLastNames"} label={"Apellidos"} handleChange={handleChange} value={form.colaboration.colaborationWatch.colabWatchLastNames} placeholder={"Ingresar apellidos"} />
-              <ErrorMessage error={errors.colabWatchLastNames} />
-            </div>
-          </section>
+          <ColaborationSection
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+            handleAutocompleteChange={handleAutocompleteChange}
+          />
         </AccordionItem>
         <AccordionItem
-          aria-label="Operador / interventor"
+          aria-label="Direccion / fecha / hora"
           title="Direccion / fecha / hora"
           key={"Direccion / fecha / hora"}
           classNames={{ subtitle: "text-danger" }}
           subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Revisar" : ""}
         >
           {/* GRUPO 3 */}
-          <section className={`grid grid-cols-1 ${form.typeOfIntervention === "REG LEGALES" ? "md:grid-cols-2" : "md:grid-cols-3"} gap-6`}>
-            <div>
-              {/*<InputText name={"direction"} label={"Direccion"} handleChange={handleChange} value={form.direction} placeholder={"Ingresar direccion"} />*/}
-              <AddressAutocomplete rule={"Texto capitalizado. (Ej: Monteagudo 1269 o Avenida Corrientes y Avenida 9 de Julio)"} setValue={handleChange} value={form.direction} />
-              <ErrorMessage error={errors.direction} />
-            </div>
-            <div>
-              <InputDate rule={"Solo tipear dd/mm/aaaa (se formatea solo a dd-mm-aaaa)"} value={form.eventDate} handleChange={handleDateChange} label={"Fecha del hecho"} />
-              <ErrorMessage error={errors.eventDate} />
-            </div>
-
-            {
-              form.typeOfIntervention !== "REG LEGALES"
-              &&
-              <div>
-                <InputTime
-                  isRequired={true}
-                  error={errors.callTime}
-                  rule={"Solo tipear hh:mm:ss (se formatea solo)"}
-                  name={"callTime"}
-                  value={form.callTime}
-                  label={"Hora del llamado"}
-                  handleChange={handleChange}
-                />
-                <ErrorMessage error={errors.callTime} />
-              </div>
-            }
-          </section>
-          <div className='w-full mt-2'>
-            {
-              form.placeId && <Map url={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_MAPS_API_KEY}&q=place_id:${form.placeId}`} />
-            }
-          </div>
+          <TemporaryLocationSection
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+            handleDateChange={handleDateChange}
+          />
         </AccordionItem>
         <AccordionItem
           aria-label="Modalidad / Dependencia"
@@ -539,33 +421,11 @@ export default function Excel({
           subtitle={(errors.modalitie || errors.jurisdiction) ? "Revisar" : ""}
         >
           {/* GRUPO 4 */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <AutocompleteInput
-                isRequired={true}
-                error={errors.modalitie}
-                rule={"Seleccionar o tipear una modalidad"}
-                label='Modalidad'
-                data={modalitiesList}
-                name={"modalitie"}
-                setValue={handleAutocompleteChange}
-                value={form.modalitie}
-              />
-              <ErrorMessage error={errors.modalitie} />
-            </div>
-
-            <div>
-              <AutocompleteInput
-                rule={"Seleccionar o tipear una dependencia"}
-                label='Dependencia'
-                data={jurisdictionsList}
-                name={"jurisdiction"}
-                setValue={handleAutocompleteChange}
-                value={form.jurisdiction}
-              />
-              <ErrorMessage error={errors.jurisdiction} />
-            </div>
-          </section>
+          <OperativeContextSection
+            form={form}
+            errors={errors}
+            handleAutocompleteChange={handleAutocompleteChange}
+          />
         </AccordionItem>
         <AccordionItem
           aria-label="Justicia interventora"
@@ -575,48 +435,12 @@ export default function Excel({
           subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Revisar" : ""}
         >
           {/* GRUPO 5 */}
-          <section className="flex flex-col md:block">
-            <div className="w-full mb-6">
-              <AutocompleteInput
-                rule={"Seleccionar o tipear la Justicia que intervino"}
-                label="Justicia"
-                data={justicesList}
-                name="justice"
-                setValue={handleAutocompleteChange}
-                value={form.interveningJustice.justice}
-              />
-              <ErrorMessage error={errors.justice} />
-            </div>
-
-            <div className="flex flex-col gap-6 md:flex-row">
-              <div className="w-full md:w-1/2">
-                <InputText
-                  rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
-                  error={errors.fiscal}
-                  name="fiscal"
-                  label="Fiscal a/c"
-                  handleChange={handleChange}
-                  value={form.interveningJustice.fiscal}
-                  placeholder="Ingresar nombre"
-                />
-                <ErrorMessage error={errors.fiscal} />
-              </div>
-
-              <div className="w-full md:w-1/2">
-                <InputText
-                  rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
-                  error={errors.secretariat}
-                  name="secretariat"
-                  label="Secretaría a/c"
-                  handleChange={handleChange}
-                  value={form.interveningJustice.secretariat}
-                  placeholder="Ingresar nombre"
-                />
-                <ErrorMessage error={errors.secretariat} />
-              </div>
-            </div>
-          </section>
-
+          <JusticeSection
+            form={form}
+            errors={errors}
+            handleAutocompleteChange={handleAutocompleteChange}
+            handleChange={handleChange}
+          />
         </AccordionItem>
         <AccordionItem
           aria-label='Reseña'
@@ -625,22 +449,13 @@ export default function Excel({
           classNames={{ subtitle: "text-danger" }}
           subtitle={(errors.review) ? "Revisar" : ""}
         >
-          <div>
-            <InputTextArea
-              isRequired={true}
-              error={errors.review}
-              label={"Reseña"}
-              value={form.review}
-              handleChange={handleChange}
-              name={"review"}
-            />
-            <ErrorMessage error={errors.review} />
-          </div>
+          <ReviewSection
+            form={form}
+            errors={errors}
+            handleChange={handleChange}
+          />
         </AccordionItem>
       </Accordion>
-
-
-
       {/* BOTONES */}
       <div className="flex flex-col md:flex-row gap-4 mt-6">
         <Button color="primary" variant="ghost" type='submit' isDisabled={incomplete || loading}>

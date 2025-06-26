@@ -1,8 +1,8 @@
 'use client';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-import ModalAlert from '../modalAlert';
-import { jurisdictionsList } from '../../../public/data/jurisdictions';
+import ModalAlert from '../Toast';
+import { jurisdictionsList } from '../../utils/data/jurisdictions';
 import { parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/date';
 import { Button } from '@heroui/button';
 import { Link } from '@heroui/link';

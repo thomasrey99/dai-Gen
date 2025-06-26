@@ -1,4 +1,4 @@
-import { areasList } from "public/data/areas";
+import { areasList } from "@/utils/data/areas";
 
 export const validations = (name, value) => {
   const errors = {};

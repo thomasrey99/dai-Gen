@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import {buildPrompt} from "../../../../public/prompt"
+import {buildPrompt} from "../../../utils/prompt"
 
 const openai = new OpenAI({
   apiKey: process.env.CHAT_GPT_KEY,

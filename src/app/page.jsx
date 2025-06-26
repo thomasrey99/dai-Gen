@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, use } from 'react';
 import ExcelForm from '@/components/form';
-import PdfReader from '@/components/inputPdf';
+import PdfReader from '@/components/pdfDataExtractor';
 import Image from 'next/image';
 import Loading from '@/components/loading';
 
