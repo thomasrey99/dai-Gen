@@ -9,6 +9,9 @@ const config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'accordion-accent': '0 4px 8px var(--accordion-shadow-color)',
+      },
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],

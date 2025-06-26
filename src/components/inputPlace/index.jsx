@@ -150,7 +150,8 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
                     onChange={setValue}
                     type="text"
                     placeholder="Buscar dirección en Buenos Aires"
-                    className="w-full p-2 h-full border border-gray-500 rounded-xl shadow-sm focus:outline-none focus:ring focus:ring-gray-500"
+                    className="w-full h-[57px] px-4 py-2 rounded-xl shadow-sm bg-default  placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 border-0"
+
                 />
             </Tooltip>
         </>

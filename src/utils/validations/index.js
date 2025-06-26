@@ -16,7 +16,27 @@ export const validations = (name, value) => {
   ];
 
   if (requiredFields.includes(name)) {
-    errors[name] = value.trim().length === 0 ? "Campo requerido" : "";
+    if (name === "eventDate") {
+      // Validar que sea un objeto con las propiedades de CalendarDate
+      const isValidDateObject =
+        value &&
+        typeof value === "object" &&
+        "day" in value &&
+        "month" in value &&
+        "year" in value;
+
+      if (!isValidDateObject) {
+        errors[name] = "Campo requerido";
+      } else {
+        errors[name] = "";
+      }
+    } else {
+      if (typeof value !== "string" || value.trim().length === 0) {
+        errors[name] = "Campo requerido";
+      } else {
+        errors[name] = "";
+      }
+    }
   }
 
   switch (name) {
@@ -37,15 +57,14 @@ export const validations = (name, value) => {
 
     case "fiscal":
     case "secretariat":
-
-      if (value && !/^(DR\.|DRA\.)\s?[A-Z\s]+$/.test(value)) {
+      if (value && !/^(DR\.|DRA\.)\s[A-ZÁÉÍÓÚÑ\s]+$/.test(value)) {
         errors[name] = "Debe comenzar con 'DR.' o 'DRA.' y contener solo mayúsculas";
       }
       break;
 
     case "cover":
     case "modalitie":
-      if (value && !/^[A-Za-z0-9\/\s]+$/.test(value)) {
+      if (value && !/^[A-Za-z0-9\/.\s]+$/.test(value)) {
         errors[name] = "Solo se permiten letras, números y '/'";
       }
       break;

@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import ExcelForm from '@/components/form';
 import PdfReader from '@/components/inputPdf';
 import Image from 'next/image';
 import Loading from '@/components/loading';
-import { useDisclosure } from '@heroui/react';
-import ModalConfirm from '@/components/modal';
 
 const ExcelModifier = () => {
   const fileInputRef = useRef(null);
@@ -18,10 +16,10 @@ const ExcelModifier = () => {
     area: null,
     typeOfIntervention: null,
     number: null,
-    injured:{
-      injuredName:"",
-      injuredLastName:"",
-      injuredDni:""
+    injured: {
+      injuredName: "",
+      injuredLastName: "",
+      injuredDni: ""
     },
     colaboration: {
       colaborationFirm: {
@@ -36,9 +34,9 @@ const ExcelModifier = () => {
         colabWatchNames: "",
         colabWatchLastNames: ""
       },
-      rangeTime:{
-        initTime:"",
-        endTime:""
+      rangeTime: {
+        initTime: "",
+        endTime: ""
       },
       cover: "",
       summaryNum: "",
@@ -58,6 +56,20 @@ const ExcelModifier = () => {
     intervener: '',
     review: '',
   });
+  const [errors, setErrors] = useState(
+    {
+      area: "Campo requerido",
+      typeOfIntervention: "Campo requerido",
+      number: "Campo requerido",
+      eventDate: "Campo requerido",
+      callTime: "Campo requerido",
+      direction: "Campo requerido",
+      modalitie: "Campo requerido",
+      operator: "Campo requerido",
+      intervener: "Campo requerido",
+      review: "Campo requerido"
+    }
+  )
 
   useEffect(() => {
     if (form.typeOfIntervention !== "REG LEGALES" && (form.colaboration.colaborationFirm.colabFirmHierarchy || form.colaboration.colaborationFirm.colabFirmLastNames || form.colaboration.colaborationFirm.colabFirmNames || form.colaboration.colaborationFirm.colabFirmLp || form.colaboration.colaborationWatch.colabWatchHierarchy || form.colaboration.colaborationWatch.colabWatchLp || form.colaboration.colaborationWatch.colabWatchNames || form.colaboration.colaborationWatch.colabWatchLastNames || form.colaboration.cover || form.colaboration.summaryNum)) {
@@ -83,6 +95,11 @@ const ExcelModifier = () => {
     }
   }, [form.typeOfIntervention]);
 
+  useEffect(()=>{ 
+    console.log("errores:", errors)
+    console.log(form)
+  },[form])
+
   return (
     <div
       className="relative bg-black flex flex-col min-h-screen w-full text-white font-sans"
@@ -99,6 +116,7 @@ const ExcelModifier = () => {
         <PdfReader
           form={form}
           setForm={setForm}
+          setErrors={setErrors}
           setIsLoading={setIsLoading}
           fileInputRef={fileInputRef}
           pdfURL={pdfURL}
@@ -115,6 +133,8 @@ const ExcelModifier = () => {
           <ExcelForm
             form={form}
             setForm={setForm}
+            errors={errors}
+            setErrors={setErrors}
             loading={loading}
             fileInputRef={fileInputRef}
             setPdfURL={setPdfURL}

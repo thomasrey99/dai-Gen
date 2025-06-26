@@ -7,12 +7,14 @@ import { parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/da
 import { Button } from '@heroui/button';
 import { Link } from '@heroui/link';
 import { Input } from '@heroui/input';
+import { validations } from '@/utils/validations';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PdfReader = ({
   form,
   setForm,
+  setErrors,
   setIsLoading,
   fileInputRef,
   pdfURL,
@@ -86,14 +88,106 @@ const PdfReader = ({
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      setForm({
+      setForm(
+        {
+          area: null,
+          typeOfIntervention: null,
+          number: null,
+          injured: {
+            injuredName: "",
+            injuredLastName: "",
+            injuredDni: ""
+          },
+          colaboration: {
+            colaborationFirm: {
+              colabFirmHierarchy: "",
+              colabFirmLp: "",
+              colabFirmNames: "",
+              colabFirmLastNames: ""
+            },
+            colaborationWatch: {
+              colabWatchHierarchy: "",
+              colabWatchLp: "",
+              colabWatchNames: "",
+              colabWatchLastNames: ""
+            },
+            rangeTime: {
+              initTime: "",
+              endTime: ""
+            },
+            cover: "",
+            summaryNum: "",
+          },
+          eventDate: null,
+          callTime: '',
+          direction: '',
+          placeId: "",
+          jurisdiction: '',
+          interveningJustice: {
+            justice: '',
+            fiscal: '',
+            secretariat: '',
+          },
+          modalitie: '',
+          operator: '',
+          intervener: '',
+          review: '',
+        }
+      )
+      setErrors(
+        {
+          area: "Campo requerido",
+          typeOfIntervention: "Campo requerido",
+          number: "Campo requerido",
+          eventDate: "Campo requerido",
+          callTime: "Campo requerido",
+          direction: "Campo requerido",
+          modalitie: "Campo requerido",
+          operator: "Campo requerido",
+          intervener: "Campo requerido",
+          review: "Campo requerido"
+        }
+      )
+
+      // Llamada a la API para extraer datos del PDF
+      const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: dataObject }),
+      });
+
+      const data = await res.json();
+      if (!data?.response) throw new Error('Respuesta vacía del servidor');
+
+      const parsed =
+        typeof data.response === 'string'
+          ? JSON.parse(data.response)
+          : data.response;
+
+      if (parsed?.message) {
+        ModalAlert('error', parsed.message);
+        fileInputRef.current && (fileInputRef.current.value = '');
+        setPdfURL(null);
+        setDataObject(null);
+        setFileName('');
+        setIsLoading(false);
+        return false;
+      }
+
+      const validJurisdiction =
+        jurisdictionsList.find(
+          (j) => j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
+        ) || '';
+
+      // Nuevo objeto form ya unificado
+      const newForm = {
         area: null,
         typeOfIntervention: null,
-        number: null,
+        number: parsed.number || '',
         injured: {
-          injuredName: "",
-          injuredLastName: "",
-          injuredDni: ""
+          injuredName: parsed.injuredName || '',
+          injuredLastName: parsed.injuredLastName || '',
+          injuredDni: parsed.injuredDni || ''
         },
         colaboration: {
           colaborationFirm: {
@@ -115,71 +209,40 @@ const PdfReader = ({
           cover: "",
           summaryNum: "",
         },
-        eventDate: null,
-        callTime: '',
-        direction: '',
-        placeId: "",
-        jurisdiction: '',
-        interveningJustice: {
-          justice: '',
-          fiscal: '',
-          secretariat: '',
-        },
-        modalitie: '',
-        operator: '',
-        intervener: '',
-        review: '',
-      });
-
-      const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: dataObject }),
-      });
-
-      const data = await res.json();
-      if (!data?.response) throw new Error('Respuesta vacía del servidor');
-      const parsed =
-        typeof data.response === 'string'
-          ? JSON.parse(data.response)
-          : data.response;
-      if (parsed?.message) {
-        ModalAlert('error', parsed.message);
-        fileInputRef.current && (fileInputRef.current.value = '');
-        setPdfURL(null);
-        setDataObject(null);
-        setFileName('');
-        setIsLoading(false);
-        return false;
-      }
-
-      const validJurisdiction =
-        jurisdictionsList.find(
-          (j) => j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
-        ) || '';
-
-      setForm({
-        ...form,
-        number: parsed.number || '',
-        injured: {
-          injuredName: parsed.injuredName || '',
-          injuredLastName: parsed.injuredLastName || '',
-          injuredDni: parsed.injuredDni || ''
-        },
-        eventDate: parseDate(parsed?.eventDate) || '',
+        eventDate: parsed.eventDate ? parseDate(parsed.eventDate) : null,
         callTime: parsed.callTime || '',
         direction: parsed.direction || '',
+        placeId: "",
         jurisdiction: validJurisdiction,
-        modalitie: parsed.modalitie || '',
         interveningJustice: {
           justice: parsed.justice || '',
           fiscal: parsed.fiscal || '',
           secretariat: parsed.secretariat || ''
         },
+        modalitie: parsed.modalitie || '',
+        operator: '',
+        intervener: '',
         review: parsed.review || '',
-      });
+      };
 
+      setForm(newForm);
+
+      // Validación de los campos obligatorios
+      const requiredFields = [
+        "area", "typeOfIntervention", "number", "eventDate", "callTime",
+        "direction", "modalitie", "operator", "intervener", "review"
+      ];
+
+      let collectedErrors = {};
+      for (const key of requiredFields) {
+        const val = newForm[key];
+        const fieldErrors = validations(key, val == null ? "" : val);
+        collectedErrors = { ...collectedErrors, ...fieldErrors };
+      }
+
+      setErrors(collectedErrors);
       ModalAlert('success', 'Datos cargados con éxito, verifica que sean correctos');
+
     } catch (error) {
       console.error('Error al extraer datos:', error);
       ModalAlert('error', 'Error inesperado al procesar el archivo');
@@ -187,6 +250,10 @@ const PdfReader = ({
       setIsLoading(false);
     }
   };
+
+
+
+
 
   return (
     <section className="w-full xl:max-w-2xl p-4 sm:p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
@@ -220,7 +287,7 @@ const PdfReader = ({
           <Button
             onPress={handleSubmit}
             isDisabled={!dataObject}
-            className={`flex-1 py-2 rounded-md shadow transition font-semibold text-sm
+            className={`flex-1 py-2 rounded-xl shadow transition font-semibold text-sm
               ${!dataObject
                 ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
                 : 'bg-sky-700 hover:bg-sky-800 text-white'
@@ -233,7 +300,7 @@ const PdfReader = ({
             <Link
               href={pdfURL}
               isExternal
-              className="flex-1 py-2 text-white bg-cyan-600 hover:bg-cyan-700 rounded-md shadow transition font-semibold text-sm flex items-center justify-center"
+              className="flex-1 py-2 text-white bg-cyan-600 hover:bg-cyan-700 rounded-xl shadow transition font-semibold text-sm flex items-center justify-center"
 
             >
               Ver PDF

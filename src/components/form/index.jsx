@@ -21,7 +21,6 @@ import { useEffect, useState } from 'react';
 import { validations } from '@/utils/validations';
 import InputNumber from '../inputs/inputNumber';
 import ErrorMessage from '../errorMessage';
-import { error } from 'pdf-lib';
 
 
 export const AnchorIcon = (props) => {
@@ -50,6 +49,8 @@ export const AnchorIcon = (props) => {
 export default function Excel({
   setForm,
   form,
+  errors,
+  setErrors,
   loading,
   setIsLoading,
   fileInputRef,
@@ -59,118 +60,105 @@ export default function Excel({
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [errors, setErrors] = useState(
-    {
-      area: "Campo requerido",
-      typeOfIntervention: "Campo requerido",
-      number: "Campo requerido",
-      eventDate: "Campo requerido",
-      callTime: "Campo requerido",
-      direction: "Campo requerido",
-      modalitie: "Campo requerido",
-      operator: "Campo requerido",
-      intervener: "Campo requerido",
-      review: "Campo requerido"
-    }
-  )
   const handleChange = async (e) => {
     const { name, value } = e.target;
     const upperValue = value.toUpperCase();
 
-    // Actualización de estado según campo
-    if (
-      name === "injuredDni" ||
-      name === "injuredName" ||
-      name === "injuredLastName"
-    ) {
+    // Manejador especial para campos de "injured"
+    if (["injuredDni", "injuredName", "injuredLastName"].includes(name)) {
       if (name === "injuredDni") {
-        if (value === "" || !/^\d+$/.test(value)) {
-          // No es un número o es vacío → no actualizar estado
-          return;
-        }
-
-        // Es un número → actualizar estado
-        setForm(prevForm => ({
-          ...prevForm,
+        if (value === "" || !/^\d+$/.test(value)) return; // DNI no válido
+        setForm(prev => ({
+          ...prev,
           injured: {
-            ...prevForm.injured,
-            [name]: value, // sin upperValue, ya que los DNI no deben transformarse
-          },
-        }));
-        return;
-      }
-    }
-    if (
-      name === "colabFirmLp" ||
-      name === "colabFirmNames" ||
-      name === "colabFirmLastNames"
-    ) {
-      setForm(prevForm => ({
-        ...prevForm,
-        colaboration: {
-          ...prevForm.colaboration,
-          colaborationFirm: {
-            ...prevForm.colaboration.colaborationFirm,
-            [name]: upperValue,
-          },
-        },
-      }));
-    } else if (
-      name === "colabWatchLp" ||
-      name === "colabWatchNames" ||
-      name === "colabWatchLastNames"
-    ) {
-      setForm(prevForm => ({
-        ...prevForm,
-        colaboration: {
-          ...prevForm.colaboration,
-          colaborationWatch: {
-            ...prevForm.colaboration.colaborationWatch,
-            [name]: upperValue,
-          },
-        },
-      }));
-    } else if (name === "initTime" || name === "endTime") {
-      setForm(prevForm => ({
-        ...prevForm,
-        colaboration: {
-          ...prevForm.colaboration,
-          rangeTime: {
-            ...prevForm.colaboration.rangeTime,
+            ...prev.injured,
             [name]: value,
           },
-        },
-      }));
-    } else if (name === "cover" || name === "summaryNum") {
-      setForm(prevForm => ({
-        ...prevForm,
-        colaboration: {
-          ...prevForm.colaboration,
-          [name]: upperValue,
-        },
-      }));
-    } else if (name === "fiscal" || name === "secretariat") {
-      setForm(prevForm => ({
-        ...prevForm,
-        interveningJustice: {
-          ...prevForm.interveningJustice,
-          [name]: upperValue,
-        },
-      }));
-    } else {
-      setForm(prevForm => ({
-        ...prevForm,
+        }));
+      } else {
+        setForm(prev => ({
+          ...prev,
+          injured: {
+            ...prev.injured,
+            [name]: upperValue,
+          },
+        }));
+      }
+      validateField(name, value);
+      return;
+    }
+
+    // Mapeo de rutas de campos anidados
+    const nestedPaths = {
+      colaborationFirm: ["colabFirmLp", "colabFirmNames", "colabFirmLastNames"],
+      colaborationWatch: ["colabWatchLp", "colabWatchNames", "colabWatchLastNames"],
+      rangeTime: ["initTime", "endTime"],
+      colaboration: ["cover", "summaryNum"],
+      interveningJustice: ["fiscal", "secretariat"],
+    };
+
+    let updated = false;
+
+    // Buscar en qué grupo anidado está el campo
+    for (const [group, fields] of Object.entries(nestedPaths)) {
+      if (fields.includes(name)) {
+        if (group === "colaboration" || group === "rangeTime") {
+          setForm(prev => ({
+            ...prev,
+            colaboration: {
+              ...prev.colaboration,
+              [group]: {
+                ...prev.colaboration[group],
+                [name]: upperValue,
+              },
+            },
+          }));
+        } else if (group === "colaborationFirm" || group === "colaborationWatch") {
+          setForm(prev => ({
+            ...prev,
+            colaboration: {
+              ...prev.colaboration,
+              [group]: {
+                ...prev.colaboration[group],
+                [name]: upperValue,
+              },
+            },
+          }));
+        } else {
+          // interveningJustice
+          setForm(prev => ({
+            ...prev,
+            interveningJustice: {
+              ...prev.interveningJustice,
+              [name]: upperValue,
+            },
+          }));
+        }
+        updated = true;
+        break;
+      }
+    }
+
+    // Si no está en ningún grupo anidado, actualizar directamente
+    if (!updated) {
+      setForm(prev => ({
+        ...prev,
         [name]: value,
       }));
     }
 
-    // Ejecutar validación SIEMPRE
+    validateField(name, value);
+  };
+
+  // Validación aislada
+  const validateField = (name, value) => {
     const validationErrors = validations(name, value);
-    setErrors(prevErrors => ({
-      ...prevErrors,
+    setErrors(prev => ({
+      ...prev,
       [name]: validationErrors[name],
     }));
   };
+
 
 
 
@@ -312,6 +300,21 @@ export default function Excel({
         review: '',
       });
 
+      setErrors(
+        {
+          area: "Campo requerido",
+          typeOfIntervention: "Campo requerido",
+          number: "Campo requerido",
+          eventDate: "Campo requerido",
+          callTime: "Campo requerido",
+          direction: "Campo requerido",
+          modalitie: "Campo requerido",
+          operator: "Campo requerido",
+          intervener: "Campo requerido",
+          review: "Campo requerido"
+        }
+      )
+
       if (fileInputRef.current) fileInputRef.current.value = '';
       setFileName("")
       setPdfURL(null);
@@ -322,15 +325,13 @@ export default function Excel({
     }
   };
 
-  const isFormIncomplete = Object.entries(form).some(([key, value]) => {
-    const optionalFields = ['intervener', 'operator', 'interveningJustice', 'jurisdiction', "colaborationFirm", "colaborationWatch", "cover", "summaryNum"];
-    if (optionalFields.includes(key)) return false;
-    if (typeof value === 'string') return value.trim() === '';
-    if (typeof value === 'object' && value !== null) {
-      return Object.values(value).some((sub) => typeof sub === 'string' && sub.trim() === '');
-    }
-    return false;
-  });
+
+
+  const hasFormErrors = (errors) => {
+    return Object.values(errors).some(error => typeof error === 'string' && error.trim() !== '');
+  };
+
+  const incomplete = hasFormErrors(errors);
 
   return (
     <form
@@ -342,11 +343,12 @@ export default function Excel({
         <Link className='font-bold ' isExternal showAnchorIcon anchorIcon={<AnchorIcon />} color='warning' href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing">Instructivo</Link>
       </div>
 
-      <Accordion 
-      defaultExpandedKeys={['review']}
-       variant="shadow"
-      className='gap-6'
-      selectionMode="multiple">
+      <Accordion
+        defaultExpandedKeys={['review']}
+        showDivider={true}
+        className="shadow-accordion-accent custom-accordion"
+        selectionMode="multiple">
+
         <AccordionItem
           classNames={{ subtitle: "text-danger" }}
           subtitle={(errors.area || errors.typeOfIntervention || errors.number) ? "Revisar" : ""}
@@ -488,11 +490,11 @@ export default function Excel({
           </section>
         </AccordionItem>
         <AccordionItem
-        aria-label="Operador / interventor"
-        title="Direccion / fecha / hora" 
-        key={"Direccion / fecha / hora"}
-        classNames={{ subtitle: "text-danger" }}
-        subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Revisar" : ""}
+          aria-label="Operador / interventor"
+          title="Direccion / fecha / hora"
+          key={"Direccion / fecha / hora"}
+          classNames={{ subtitle: "text-danger" }}
+          subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Revisar" : ""}
         >
           {/* GRUPO 3 */}
           <section className={`grid grid-cols-1 ${form.typeOfIntervention === "REG LEGALES" ? "md:grid-cols-2" : "md:grid-cols-3"} gap-6`}>
@@ -510,7 +512,15 @@ export default function Excel({
               form.typeOfIntervention !== "REG LEGALES"
               &&
               <div>
-                <InputTime isRequired={true} error={errors.callTime} rule={"Solo tipear hh:mm:ss (se formatea solo)"} name={"callTime"} value={form.callTime} label={"Hora del llamado"} handleChange={handleChange} />
+                <InputTime
+                  isRequired={true}
+                  error={errors.callTime}
+                  rule={"Solo tipear hh:mm:ss (se formatea solo)"}
+                  name={"callTime"}
+                  value={form.callTime}
+                  label={"Hora del llamado"}
+                  handleChange={handleChange}
+                />
                 <ErrorMessage error={errors.callTime} />
               </div>
             }
@@ -522,31 +532,47 @@ export default function Excel({
           </div>
         </AccordionItem>
         <AccordionItem
-        aria-label="Modalidad / Dependencia" 
-        title="Modalidad / Dependencia" 
-        key={"Modalidad / Dependencia"}
-        classNames={{ subtitle: "text-danger" }}
-        subtitle={(errors.modalitie || errors.jurisdiction) ? "Revisar" : ""}
+          aria-label="Modalidad / Dependencia"
+          title="Modalidad / Dependencia"
+          key={"Modalidad / Dependencia"}
+          classNames={{ subtitle: "text-danger" }}
+          subtitle={(errors.modalitie || errors.jurisdiction) ? "Revisar" : ""}
         >
           {/* GRUPO 4 */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <AutocompleteInput isRequired={true} error={errors.modalitie} rule={"Seleccionar o tipear una modalidad"} label='Modalidad' data={modalitiesList} name={"modalitie"} setValue={handleAutocompleteChange} value={form.modalitie} />
+              <AutocompleteInput
+                isRequired={true}
+                error={errors.modalitie}
+                rule={"Seleccionar o tipear una modalidad"}
+                label='Modalidad'
+                data={modalitiesList}
+                name={"modalitie"}
+                setValue={handleAutocompleteChange}
+                value={form.modalitie}
+              />
               <ErrorMessage error={errors.modalitie} />
             </div>
 
             <div>
-              <AutocompleteInput rule={"Seleccionar o tipear una dependencia"} label='Dependencia' data={jurisdictionsList} name={"jurisdiction"} setValue={handleAutocompleteChange} value={form.jurisdiction} />
+              <AutocompleteInput
+                rule={"Seleccionar o tipear una dependencia"}
+                label='Dependencia'
+                data={jurisdictionsList}
+                name={"jurisdiction"}
+                setValue={handleAutocompleteChange}
+                value={form.jurisdiction}
+              />
               <ErrorMessage error={errors.jurisdiction} />
             </div>
           </section>
         </AccordionItem>
-        <AccordionItem 
-        aria-label="Justicia interventora" 
-        title="Justicia interventora" 
-        key={"Justicia interventora"}
-        classNames={{ subtitle: "text-danger" }}
-        subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Revisar" : ""}
+        <AccordionItem
+          aria-label="Justicia interventora"
+          title="Justicia interventora"
+          key={"Justicia interventora"}
+          classNames={{ subtitle: "text-danger" }}
+          subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Revisar" : ""}
         >
           {/* GRUPO 5 */}
           <section className="flex flex-col md:block">
@@ -593,14 +619,21 @@ export default function Excel({
 
         </AccordionItem>
         <AccordionItem
-        aria-label='Reseña'
-        title="Reseña" 
-        key="review"
-        classNames={{ subtitle: "text-danger" }}
-        subtitle={(errors.review) ? "Revisar" : ""}
+          aria-label='Reseña'
+          title="Reseña"
+          key="review"
+          classNames={{ subtitle: "text-danger" }}
+          subtitle={(errors.review) ? "Revisar" : ""}
         >
           <div>
-            <InputTextArea isRequired={true} error={errors.review} label={"Reseña"} value={form.review} handleChange={handleChange} name={"review"} />
+            <InputTextArea
+              isRequired={true}
+              error={errors.review}
+              label={"Reseña"}
+              value={form.review}
+              handleChange={handleChange}
+              name={"review"}
+            />
             <ErrorMessage error={errors.review} />
           </div>
         </AccordionItem>
@@ -610,7 +643,7 @@ export default function Excel({
 
       {/* BOTONES */}
       <div className="flex flex-col md:flex-row gap-4 mt-6">
-        <Button color="primary" variant="ghost" type='submit' isDisabled={isFormIncomplete || loading}>
+        <Button color="primary" variant="ghost" type='submit' isDisabled={incomplete || loading}>
           Generar Excel
         </Button>
         <Button color="success" variant="ghost" onPress={() => { onOpenChange(true) }}>
