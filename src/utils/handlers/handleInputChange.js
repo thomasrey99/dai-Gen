@@ -64,7 +64,11 @@ const handleInputChange = (form, setForm) => (inputOrInputs) => {
       if (fields.includes(name)) {
         isNested = true;
         if (group === "interveningJustice") {
-          updatedForm[group][name] = value;
+          if (["fiscal", "secretariat"].includes(name) && typeof value === "string") {
+            updatedForm[group][name] = value.toUpperCase();
+          } else {
+            updatedForm[group][name] = value;
+          }
         } else if (group === "colaboration") {
           updatedForm[group][name] = value;
         } else {
@@ -77,7 +81,7 @@ const handleInputChange = (form, setForm) => (inputOrInputs) => {
 
     const toUpperFields = [
       "area", "typeOfIntervention", "number",
-      "operator", "intervener", "modalitie", "jurisdiction"
+      "operator", "intervener", "modalitie", "jurisdiction",
     ];
     updatedForm[name] = toUpperFields.includes(name) ? upperValue : value;
 
