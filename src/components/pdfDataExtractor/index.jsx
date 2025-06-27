@@ -233,22 +233,24 @@ const PdfReader = ({
   };
 
   return (
-    <section className="w-full xl:max-w-2xl p-4 sm:p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
-
-      <h2 className="mb-3 text-base sm:text-lg font-semibold text-white tracking-wide text-center sm:text-left">
+    <section className="w-full xl:max-w-2xl p-6 rounded-xl bg-white/5 shadow-lg ring-1 ring-white/10 backdrop-blur-md">
+      <h2 className="mb-5 text-2xl font-bold text-white tracking-wide text-center sm:text-left">
         Cargar y Extraer Datos del PDF
       </h2>
 
-      <div className="w-full flex flex-col xl:flex-row gap-3 sm:gap-2">
+      <div className="flex flex-col xl:flex-row gap-4">
+        {/* Input archivo */}
         <div className="w-full xl:w-1/3">
           <Input
-            type='file'
-            accept='application/pdf'
+            type="file"
+            accept="application/pdf"
             ref={fileInputRef}
             onChange={handleFileChange}
+            className="text-white placeholder:text-gray-400"
           />
         </div>
 
+        {/* Nombre archivo */}
         <div className="w-full xl:w-1/3">
           <Input
             type="text"
@@ -256,17 +258,19 @@ const PdfReader = ({
             value={fileName}
             placeholder="No hay archivo seleccionado"
             title={fileName}
+            className="text-white placeholder:text-gray-400 "
           />
         </div>
 
+        {/* Botones */}
         <div className="w-full xl:w-1/3 flex flex-col xl:flex-row gap-2">
           <Button
             onPress={handleSubmit}
             isDisabled={!dataObject}
-            className={`flex-1 py-2 rounded-xl shadow transition font-semibold text-sm
-              ${!dataObject
+            className={`flex-1 py-2 rounded-xl font-semibold text-sm shadow transition
+          ${!dataObject
                 ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
-                : 'bg-sky-700 hover:bg-sky-800 text-white'
+                : 'bg-sky-600 hover:bg-sky-700 text-white'
               }`}
           >
             Extraer
@@ -276,7 +280,7 @@ const PdfReader = ({
             <Link
               href={pdfURL}
               isExternal
-              className="flex-1 py-2 text-white bg-cyan-600 hover:bg-cyan-700 rounded-xl shadow transition font-semibold text-sm flex items-center justify-center"
+              className="flex-1 py-2 px-4 text-white text-sm font-semibold rounded-xl shadow bg-cyan-600 hover:bg-cyan-700 transition flex items-center justify-center"
             >
               Ver PDF
             </Link>
@@ -284,6 +288,7 @@ const PdfReader = ({
         </div>
       </div>
     </section>
+
   );
 };
 

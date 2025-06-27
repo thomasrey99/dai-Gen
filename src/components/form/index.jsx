@@ -3,7 +3,6 @@
 import temporaryLocationSection from '../Toast';
 import { Accordion, AccordionItem, Button, Link, useDisclosure } from "@heroui/react";
 import ModalConfirm from '../modal';
-import { validations } from '@/utils/validations';
 import EventSection from './sections/eventSection';
 import OperatorSection from './sections/operatorSection';
 import InjuredSection from './sections/injuredSection';
@@ -12,9 +11,9 @@ import TemporaryLocationSection from './sections/temporaryLocationSection';
 import OperativeContextSection from './sections/operativeContextSection';
 import JusticeSection from './sections/justiceSection';
 import ReviewSection from './sections/reviewSection';
-import Toast from '../Toast';
 import { clearForm } from '@/utils/clearForm';
 import handleInputChange from '@/utils/handlers/handleInputChange';
+import { useState } from 'react';
 
 
 export const AnchorIcon = (props) => {
@@ -40,6 +39,27 @@ export const AnchorIcon = (props) => {
   );
 };
 
+const PlusIcon = (props) => {
+  return (
+    <svg
+      aria-hidden="true"
+      focusable="false"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+};
+
 export default function Excel({
   setForm,
   form,
@@ -54,6 +74,8 @@ export default function Excel({
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const [selected, setSelected] = useState("eventSection");
 
   const handleChange = handleInputChange(form, setForm, setErrors)
 
@@ -97,159 +119,191 @@ export default function Excel({
 
   return (
     <form
-      className="relative overflow-hidden flex flex-col w-full max-w-6xl mx-auto bg-white/5 p-6 gap-6 rounded-xl shadow-lg ring-1 ring-white/10 backdrop-blur-md"
       onSubmit={onSubmit}
+      className="relative overflow-hidden w-full max-w-6xl mx-auto bg-white/5 p-8 xl:p-10 gap-8 flex flex-col rounded-2xl shadow-2xl ring-1 ring-white/10 backdrop-blur-md transition-all duration-300"
     >
-      <div className='w-full flex flex-col xl:flex-row justify-between'>
-        <h2 className="text-lg xl:text-3xl font-bold text-white tracking-tight pb-2">Formulario de Visualización</h2>
-        <Link className='font-bold ' isExternal showAnchorIcon anchorIcon={<AnchorIcon />} color='warning' href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing">Instructivo</Link>
+      {/* ENCABEZADO */}
+      <div className="w-full flex flex-col xl:flex-row justify-between items-start xl:items-center gap-2">
+        <h2 className="text-2xl xl:text-4xl font-bold text-white tracking-tight">
+          Formulario de Visualización
+        </h2>
+        <Link
+          className="text-sm font-semibold text-yellow-400 hover:text-yellow-300 underline underline-offset-4 transition"
+          isExternal
+          showAnchorIcon
+          anchorIcon={<AnchorIcon />}
+          color="warning"
+          href="https://drive.google.com/file/d/1XcEme9ZLJu2l16T_-qrHDhq70zLtrXep/view?usp=sharing"
+        >
+          Instructivo
+        </Link>
       </div>
 
+      {/* ACORDEÓN */}
       <Accordion
         defaultExpandedKeys={['review']}
-        showDivider={true}
-        className="shadow-accordion-accent custom-accordion"
-        selectionMode="multiple">
-
+        showDivider={false}
+        className="shadow-none custom-accordion"
+        selectionMode="multiple"
+      >
+        {/* Secciones */}
         <AccordionItem
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.area || errors.typeOfIntervention || errors.number) ? "Revisar" : ""}
-          aria-label="Area / Tipo / Nº"
-          title="Area / Tipo / Nº"
-          key={"Area / Tipo / Nº"}>
-          {/* GRUPO 1 */}
-          <EventSection
-            errors={errors}
-            handleChange={handleChange}
-            form={form}
-          />
-        </AccordionItem>
-        <AccordionItem
-          aria-label="Visualizador / interventor"
-          title="Visualizador / interventor"
-          key={"Visualizador / interventor"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.operator || errors.intervener) ? "Revisar" : ""}
+          indicator={<PlusIcon />}
+          title="Área / Tipo / Nº"
+          key="Area / Tipo / Nº"
+          subtitle={(errors.area || errors.typeOfIntervention || errors.number) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          {/* GRUPO 2 */}
-          <OperatorSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <EventSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
-        {/*Grupo damnificado*/}
+
         <AccordionItem
-          aria-label="Datos del damnificado"
-          title="Datos del damnificado"
-          key={"Datos del damnificado"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.injuredName || errors.injuredLastName || errors.injuredDni) ? "Revisar" : ""}
+          indicator={<PlusIcon />}
+          title="Visualizador / Interventor"
+          key="Visualizador / interventor"
+          subtitle={(errors.operator || errors.intervener) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          <InjuredSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <OperatorSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
-        {
-          form.typeOfIntervention === "REG LEGALES"
-          &&
-            <AccordionItem
-              label="Colaboracion"
-              title="Colaboracion"
-              isDisabled={form.typeOfIntervention !== "REG LEGALES"} key={"Colaboracion"}
-              classNames={{ subtitle: "text-danger" }}
-              subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Revisar" : ""}
-            >
-              {/*Grupo de colaboracion*/}
-              <ColaborationSection
-                form={form}
-                errors={errors}
-                handleChange={handleChange}
-              />
-            </AccordionItem>
-        }
+
         <AccordionItem
-          aria-label="Direccion / fecha / hora"
-          title="Direccion / fecha / hora"
-          key={"Direccion / fecha / hora"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Revisar" : ""}
+          indicator={<PlusIcon />}
+          title="Datos del Damnificado"
+          key="Datos del damnificado"
+          subtitle={(errors.injuredName || errors.injuredLastName || errors.injuredDni) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          {/* GRUPO 3 */}
-          <TemporaryLocationSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <InjuredSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
+
+        {form.typeOfIntervention === "REG LEGALES" && (
+          <AccordionItem
+            indicator={<PlusIcon />}
+            title="Colaboración"
+            key="Colaboracion"
+            subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Hay errores" : ""}
+            classNames={{
+              subtitle: "text-danger",
+              title: "text-lg",
+              content: "pb-6"  // Aquí agregás padding a la sección desplegada
+            }}
+          >
+            <ColaborationSection form={form} errors={errors} handleChange={handleChange} />
+          </AccordionItem>
+        )}
+
         <AccordionItem
-          aria-label="Modalidad / Dependencia"
+          indicator={<PlusIcon />}
+          title="Dirección / Fecha / Hora"
+          key="Direccion / fecha / hora"
+          subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
+        >
+          <TemporaryLocationSection form={form} errors={errors} handleChange={handleChange} />
+        </AccordionItem>
+
+        <AccordionItem
+          indicator={<PlusIcon />}
           title="Modalidad / Dependencia"
-          key={"Modalidad / Dependencia"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.modalitie || errors.jurisdiction) ? "Revisar" : ""}
+          key="Modalidad / Dependencia"
+          subtitle={(errors.modalitie || errors.jurisdiction) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          {/* GRUPO 4 */}
-          <OperativeContextSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <OperativeContextSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
+
         <AccordionItem
-          aria-label="Justicia interventora"
-          title="Justicia interventora"
-          key={"Justicia interventora"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Revisar" : ""}
+          indicator={<PlusIcon />}
+          title="Justicia Interventora"
+          key="Justicia interventora"
+          subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "pb-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          {/* GRUPO 5 */}
-          <JusticeSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <JusticeSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
+
         <AccordionItem
-          aria-label='Reseña'
+          indicator={<PlusIcon />}
           title="Reseña"
           key="review"
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.review) ? "Revisar" : ""}
+          subtitle={errors.review ? "Hay errores" : ""}
+          classNames={{
+            subtitle: "text-danger",
+            title: "text-lg",
+            content: "py-6"  // Aquí agregás padding a la sección desplegada
+          }}
         >
-          <ReviewSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
+          <ReviewSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
       </Accordion>
+
       {/* BOTONES */}
-      <div
-        className="flex flex-col md:flex-row gap-4 mt-6"
-      >
+      <div className="flex flex-col md:flex-row gap-4 mt-8">
         <Button
           color="primary"
           variant="ghost"
-          type='submit'
+          type="submit"
           isDisabled={incomplete || loading}
+          className={`
+            w-full md:w-auto
+            px-6 py-3 rounded-xl font-semibold text-lg
+            transition-colors duration-300
+            ${incomplete || loading
+              ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+              : "bg-sky-600 hover:bg-sky-700 text-white shadow-lg"
+            }
+            focus:outline-none focus:ring-4 focus:ring-sky-400 focus:ring-opacity-50
+          `}
         >
           Generar Excel
         </Button>
+
         <Button
           color="success"
           variant="ghost"
-          onPress={() => { onOpenChange(true) }}
+          onPress={() => onOpenChange(true)}
+          className="
+            w-full md:w-auto
+            px-6 py-3 rounded-xl font-semibold text-lg
+            bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg
+            transition-colors duration-300
+            focus:outline-none focus:ring-4 focus:ring-emerald-400 focus:ring-opacity-50
+          "
         >
-          Lmpiar campos
+          Limpiar Campos
         </Button>
       </div>
+
+
       <ModalConfirm
-        text={"¿Desea limpiar todos los campos del formulario?"}
-        title={"Limpiar campos"}
+        text="¿Desea limpiar todos los campos del formulario?"
+        title="Limpiar campos"
         action={() => clearForm({
           onOpenChange,
           setForm,
@@ -259,13 +313,11 @@ export default function Excel({
           setFileName,
           setDataObject
         })}
-        actionTitle={"Limpiar"}
+        actionTitle="Limpiar"
         isOpen={isOpen}
         onOpen={onOpen}
         onOpenChange={onOpenChange}
       />
-    </form >
-
-
+    </form>
   );
 }

@@ -79,19 +79,12 @@ const ExcelModifier = () => {
         const nestedErrors = validateForm(value, currentPath);
         newErrors = { ...newErrors, ...nestedErrors };
       } else {
-        // Para keys raíz o anidadas simples, la función validations espera el "nombre" sin path, 
-        // así que sólo validamos keys finales.
-        // Se puede usar solo la key sin path o adaptar validations para path completo si quieres.
-        // Aquí asumo que validations recibe solo la key simple:
         const fieldName = key;
-
         const fieldErrors = validations(fieldName, value, form);
         if (fieldErrors && fieldErrors[fieldName]) {
           newErrors[fieldName] = fieldErrors[fieldName];
         } else {
-          // Si no hay error, aseguramos remover error previo si existía
           if (errors[fieldName]) {
-            // Para evitar mutar errors directamente, lo dejamos vacío aquí y lo eliminamos abajo
             newErrors[fieldName] = '';
           }
         }
@@ -101,21 +94,13 @@ const ExcelModifier = () => {
   };
 
   useEffect(() => {
-    // Validar cuando cambia form
-
-    // Primero limpiamos errores vacíos o vacíos explícitos
     const rawErrors = validateForm(form);
-
-    // Limpiar errores vacíos (campo con string vacío) para evitar mostrar error cuando no hay mensaje
     const filteredErrors = Object.fromEntries(
       Object.entries(rawErrors).filter(([_, v]) => v && v.trim() !== '')
     );
-
     setErrors(filteredErrors);
-
   }, [form]);
 
-  // Mantener el useEffect que limpia datos reg legales cuando cambia el tipo de intervención
   useEffect(() => {
     if (form.typeOfIntervention === "REG LEGALES") return;
 
@@ -155,48 +140,54 @@ const ExcelModifier = () => {
 
   return (
     <div
-      className="relative bg-black flex flex-col min-h-screen w-full text-white font-sans"
+      className="
+        relative flex flex-col min-h-screen w-full text-white font-sans bg-black
+        after:content-[''] after:absolute after:inset-0 after:bg-noise-pattern after:opacity-5 after:pointer-events-none after:z-0
+      "
     >
-      <header className="w-full px-6 py-8 flex flex-col xl:flex-row gap-4 items-center justify-between xl:max-w-7xl mx-auto">
-        <div className="flex sm:mb-6 xl:mb-0 flex-col xl:flex-row gap-4 items-center justify-start">
-          <Image src="/logo.png" alt="deai logo" width={150} height={150} />
-          <h1 className="text-5xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-sky-600 text-transparent bg-clip-text animate-pulse">
-            DAI GEN
-          </h1>
-        </div>
+      <div className="relative z-10 w-full flex flex-col min-h-screen">
+        <header className="w-full px-6 py-8 flex flex-col xl:flex-row gap-4 items-center justify-between xl:max-w-7xl mx-auto">
+          <div className="flex sm:mb-6 xl:mb-0 flex-col xl:flex-row gap-4 items-center justify-start">
+            <Image src="/logo.png" alt="deai logo" width={150} height={150} />
+            <h1 className="text-5xl font-extrabold tracking-wide bg-gradient-to-r from-sky-400 via-sky-200 to-sky-600 bg-[length:300%_300%] bg-clip-text text-transparent animate-glow">
+              DAI GEN
+            </h1>
+          </div>
 
-        <PdfReader
-          form={form}
-          setForm={setForm}
-          setErrors={setErrors}
-          setIsLoading={setIsLoading}
-          fileInputRef={fileInputRef}
-          pdfURL={pdfURL}
-          setPdfURL={setPdfURL}
-          setFileName={setFileName}
-          fileName={fileName}
-          dataObject={dataObject}
-          setDataObject={setDataObject}
-        />
-      </header>
-
-      <main className="flex-1 w-full max-w-7xl mx-auto px-6 pb-10">
-        <div className="bg-white/5 backdrop-blur-xs p-6 rounded-xl shadow-xl ring-1 ring-white/10">
-          <ExcelForm
+          <PdfReader
             form={form}
             setForm={setForm}
-            errors={errors}
             setErrors={setErrors}
-            loading={loading}
-            fileInputRef={fileInputRef}
-            setPdfURL={setPdfURL}
-            setDataObject={setDataObject}
             setIsLoading={setIsLoading}
+            fileInputRef={fileInputRef}
+            pdfURL={pdfURL}
+            setPdfURL={setPdfURL}
             setFileName={setFileName}
+            fileName={fileName}
+            dataObject={dataObject}
+            setDataObject={setDataObject}
           />
-        </div>
-      </main>
-      {loading && <Loading />}
+        </header>
+
+        <main className="flex-1 w-full max-w-7xl mx-auto px-6 pb-10">
+          <div className="bg-white/5 backdrop-blur-xs p-6 rounded-xl shadow-xl ring-1 ring-white/10">
+            <ExcelForm
+              form={form}
+              setForm={setForm}
+              errors={errors}
+              setErrors={setErrors}
+              loading={loading}
+              fileInputRef={fileInputRef}
+              setPdfURL={setPdfURL}
+              setDataObject={setDataObject}
+              setIsLoading={setIsLoading}
+              setFileName={setFileName}
+            />
+          </div>
+        </main>
+
+        {loading && <Loading />}
+      </div>
     </div>
   );
 };
