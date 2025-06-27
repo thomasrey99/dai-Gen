@@ -59,20 +59,20 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
             // ✅ Forzamos visualmente el input (porque React lo tiene controlado)
             inputRef.current.value = formattedAddress;
 
-            // ✅ Disparamos evento artificial para handleChange
-            setValue({
-              target: {
-                name: "direction",
-                value: formattedAddress,
+            setValue([
+              {
+                target: {
+                  name: "direction",
+                  value: formattedAddress,
+                },
               },
-            });
-
-            setValue({
-              target: {
-                name: "placeId",
-                value: place.place_id,
+              {
+                target: {
+                  name: "placeId",
+                  value: place.place_id,
+                },
               },
-            });
+            ]);
           } catch (error) {
             console.error("Error al obtener los detalles del lugar:", error);
           }
@@ -155,7 +155,7 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
       <input
         ref={inputRef}
         name="direction"
-        defaultValue={value}
+        value={value}
         onChange={setValue}
         type="text"
         placeholder="Buscar dirección en Buenos Aires"

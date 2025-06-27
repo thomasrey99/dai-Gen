@@ -3,18 +3,16 @@ import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
 import ModalAlert from '../Toast';
 import { jurisdictionsList } from '../../utils/data/jurisdictions';
-import { parseDate, getLocalTimeZone, CalendarDate } from '@internationalized/date';
+import { parseDate } from '@internationalized/date';
 import { Button } from '@heroui/button';
 import { Link } from '@heroui/link';
 import { Input } from '@heroui/input';
-import { validations } from '@/utils/validations';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PdfReader = ({
   form,
   setForm,
-  setErrors,
   setIsLoading,
   fileInputRef,
   pdfURL,
@@ -88,66 +86,58 @@ const PdfReader = ({
   const handleSubmit = async () => {
     try {
       setIsLoading(true);
-      setForm(
-        {
-          area: null,
-          typeOfIntervention: null,
-          number: null,
-          injured: {
-            injuredName: "",
-            injuredLastName: "",
-            injuredDni: ""
+
+      // Limpio el form actual
+      setForm({
+        area: null,
+        typeOfIntervention: null,
+        number: null,
+        injured: {
+          injuredName: "",
+          injuredLastName: "",
+          injuredDni: "",
+          vehicle: {
+            brand: "",
+            model: "",
+            color: "",
+            domain: ""
+          }
+        },
+        colaboration: {
+          colaborationFirm: {
+            colabFirmHierarchy: "",
+            colabFirmLp: "",
+            colabFirmNames: "",
+            colabFirmLastNames: ""
           },
-          colaboration: {
-            colaborationFirm: {
-              colabFirmHierarchy: "",
-              colabFirmLp: "",
-              colabFirmNames: "",
-              colabFirmLastNames: ""
-            },
-            colaborationWatch: {
-              colabWatchHierarchy: "",
-              colabWatchLp: "",
-              colabWatchNames: "",
-              colabWatchLastNames: ""
-            },
-            rangeTime: {
-              initTime: "",
-              endTime: ""
-            },
-            cover: "",
-            summaryNum: "",
+          colaborationWatch: {
+            colabWatchHierarchy: "",
+            colabWatchLp: "",
+            colabWatchNames: "",
+            colabWatchLastNames: ""
           },
-          eventDate: null,
-          callTime: '',
-          direction: '',
-          placeId: "",
-          jurisdiction: '',
-          interveningJustice: {
-            justice: '',
-            fiscal: '',
-            secretariat: '',
+          rangeTime: {
+            initTime: "",
+            endTime: ""
           },
-          modalitie: '',
-          operator: '',
-          intervener: '',
-          review: '',
-        }
-      )
-      setErrors(
-        {
-          area: "Campo requerido",
-          typeOfIntervention: "Campo requerido",
-          number: "Campo requerido",
-          eventDate: "Campo requerido",
-          callTime: "Campo requerido",
-          direction: "Campo requerido",
-          modalitie: "Campo requerido",
-          operator: "Campo requerido",
-          intervener: "Campo requerido",
-          review: "Campo requerido"
-        }
-      )
+          cover: "",
+          summaryNum: "",
+        },
+        eventDate: null,
+        callTime: '',
+        direction: '',
+        placeId: "",
+        jurisdiction: '',
+        interveningJustice: {
+          justice: '',
+          fiscal: '',
+          secretariat: '',
+        },
+        modalitie: '',
+        operator: '',
+        intervener: '',
+        review: ''
+      });
 
       // Llamada a la API para extraer datos del PDF
       const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
@@ -179,7 +169,6 @@ const PdfReader = ({
           (j) => j.toLowerCase() === (parsed.jurisdiction || '').toLowerCase()
         ) || '';
 
-      // Nuevo objeto form ya unificado
       const newForm = {
         area: null,
         typeOfIntervention: null,
@@ -187,7 +176,13 @@ const PdfReader = ({
         injured: {
           injuredName: parsed.injuredName || '',
           injuredLastName: parsed.injuredLastName || '',
-          injuredDni: parsed.injuredDni || ''
+          injuredDni: parsed.injuredDni || '',
+          vehicle: {
+            brand: parsed.injuredVehicleBrand || '',
+            model: parsed.injuredVehicleModel || '',
+            color: parsed.injuredVehicleColor || '',
+            domain: parsed.injuredVehicleDomain || ''
+          }
         },
         colaboration: {
           colaborationFirm: {
@@ -227,20 +222,6 @@ const PdfReader = ({
 
       setForm(newForm);
 
-      // Validación de los campos obligatorios
-      const requiredFields = [
-        "area", "typeOfIntervention", "number", "eventDate", "callTime",
-        "direction", "modalitie", "operator", "intervener", "review"
-      ];
-
-      let collectedErrors = {};
-      for (const key of requiredFields) {
-        const val = newForm[key];
-        const fieldErrors = validations(key, val == null ? "" : val);
-        collectedErrors = { ...collectedErrors, ...fieldErrors };
-      }
-
-      setErrors(collectedErrors);
       ModalAlert('success', 'Datos cargados con éxito, verifica que sean correctos');
 
     } catch (error) {
@@ -250,10 +231,6 @@ const PdfReader = ({
       setIsLoading(false);
     }
   };
-
-
-
-
 
   return (
     <section className="w-full xl:max-w-2xl p-4 sm:p-6 rounded-lg bg-white/5 shadow ring-1 ring-white/10 backdrop-blur-md">
@@ -271,7 +248,6 @@ const PdfReader = ({
             onChange={handleFileChange}
           />
         </div>
-
 
         <div className="w-full xl:w-1/3">
           <Input
@@ -301,17 +277,13 @@ const PdfReader = ({
               href={pdfURL}
               isExternal
               className="flex-1 py-2 text-white bg-cyan-600 hover:bg-cyan-700 rounded-xl shadow transition font-semibold text-sm flex items-center justify-center"
-
             >
               Ver PDF
             </Link>
           )}
         </div>
-
-
       </div>
     </section>
-
   );
 };
 

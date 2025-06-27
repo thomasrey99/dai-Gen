@@ -1,8 +1,8 @@
-import { areasList } from "@/utils/data/areas";
+import { areasList } from "../data/areas";
 
 export const validations = (name, value, form = {}) => {
   const errors = {};
-  console.log("form actual", form)
+
   const requiredFields = [
     "area",
     "typeOfIntervention",
@@ -36,7 +36,6 @@ export const validations = (name, value, form = {}) => {
     (form?.typeOfIntervention === "REG LEGALES" &&
       requiredIfRegLegales.includes(name));
 
-      console.log(isRequired)
   if (isRequired) {
     if (name === "eventDate") {
       const isValidDateObject =
@@ -48,18 +47,21 @@ export const validations = (name, value, form = {}) => {
 
       errors[name] = isValidDateObject ? "" : "Campo requerido";
     } else {
-      errors[name] = (typeof value !== "string" || value.trim() === "")
-        ? "Campo requerido"
-        : "";
+      // Aquí aseguramos que value sea string antes de hacer trim
+      const valStr = typeof value === "string" ? value : "";
+      errors[name] = valStr.trim() === "" ? "Campo requerido" : "";
     }
   }
 
+  // Validaciones específicas
   switch (name) {
     case "area":
-      const cleanValue = value.trim();
-      if (value && !areasList.includes(cleanValue)) {
-        const areas = areasList.join(", ");
-        errors[name] = "Opción inválida, disponibles: " + areas;
+      {
+        const valStr = typeof value === "string" ? value.trim() : "";
+        if (valStr && !areasList.includes(valStr)) {
+          const areas = areasList.join(", ");
+          errors[name] = "Opción inválida, disponibles: " + areas;
+        }
       }
       break;
 

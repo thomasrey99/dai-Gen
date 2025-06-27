@@ -1,23 +1,18 @@
-import { validations } from "@/utils/validations";
+const handleInputChange = (form, setForm) => (inputOrInputs) => {
+  const inputs = Array.isArray(inputOrInputs) ? inputOrInputs : [inputOrInputs];
 
-const handleInputChange = (form, setForm, setErrors) => (input) => {
-  let name, value;
-  if (typeof input === "object" && input?.target) {
-    name = input.target.name;
-    value = input.target.value;
-  } else if (input?.name !== undefined) {
-    name = input.name;
-    value = input.value;
-  } else if (input?.day && input?.month && input?.year) {
-    const updatedForm = { ...form, eventDate: input };
-    setForm(updatedForm);
-    validateField("eventDate", input, setErrors, updatedForm);
-    return;
-  } else {
-    return;
-  }
-
-  const upperValue = typeof value === "string" ? value.toUpperCase() : value;
+  // Clonamos estructura completa para mantener valores previos
+  let updatedForm = {
+    ...form,
+    injured: { ...form.injured, vehicle: { ...form.injured?.vehicle } },
+    colaboration: {
+      ...form.colaboration,
+      colaborationFirm: { ...form.colaboration?.colaborationFirm },
+      colaborationWatch: { ...form.colaboration?.colaborationWatch },
+      rangeTime: { ...form.colaboration?.rangeTime },
+    },
+    interveningJustice: { ...form.interveningJustice },
+  };
 
   const nestedPaths = {
     colaborationFirm: ["colabFirmLp", "colabFirmNames", "colabFirmLastNames", "colabFirmHierarchy"],
@@ -28,134 +23,83 @@ const handleInputChange = (form, setForm, setErrors) => (input) => {
   };
 
   const regLegalFields = [
-    "colabFirmHierarchy",
-    "colabFirmLp",
-    "colabFirmNames",
-    "colabFirmLastNames",
-    "colabWatchHierarchy",
-    "colabWatchLp",
-    "colabWatchNames",
-    "colabWatchLastNames",
-    "initTime",
-    "endTime",
-    "cover",
-    "summaryNum",
+    "colabFirmHierarchy", "colabFirmLp", "colabFirmNames", "colabFirmLastNames",
+    "colabWatchHierarchy", "colabWatchLp", "colabWatchNames", "colabWatchLastNames",
+    "initTime", "endTime", "cover", "summaryNum"
   ];
 
-  // Validación para persona lesionada
-  if (["injuredDni", "injuredName", "injuredLastName"].includes(name)) {
-    if (name === "injuredDni" && (value === "" || !/^\d+$/.test(value))) return;
+  const vehicleFields = ["brand", "model", "color", "domain"];
 
-    const updatedForm = {
-      ...form,
-      injured: {
-        ...form.injured,
-        [name]: name === "injuredDni" ? value : upperValue,
-      },
-    };
+  for (const input of inputs) {
+    let name, value;
 
-    setForm(updatedForm);
-    validateField(name, value, setErrors, updatedForm);
-    return;
-  }
+    if (typeof input === "object" && input?.target) {
+      name = input.target.name;
+      value = input.target.value;
+    } else if (input?.name !== undefined) {
+      name = input.name;
+      value = input.value;
+    } else if (input?.day && input?.month && input?.year) {
+      updatedForm.eventDate = input;
+      continue;
+    } else {
+      continue;
+    }
 
-  let updatedForm = { ...form };
+    const upperValue = typeof value === "string" ? value.toUpperCase() : value;
 
-  for (const [group, fields] of Object.entries(nestedPaths)) {
-    if (fields.includes(name)) {
-      if (group === "interveningJustice") {
-        updatedForm = {
-          ...form,
-          interveningJustice: {
-            ...form.interveningJustice,
-            [name]: value,
-          },
-        };
-      } else if (group === "colaboration") {
-        // campos planos como cover, summaryNum
-        updatedForm = {
-          ...form,
-          colaboration: {
-            ...form.colaboration,
-            [name]: value,
-          },
-        };
-      } else {
-        // objetos anidados como colaborationFirm, colaborationWatch, rangeTime
-        updatedForm = {
-          ...form,
-          colaboration: {
-            ...form.colaboration,
-            [group]: {
-              ...(form.colaboration[group] || {}),
-              [name]: value,
-            },
-          },
-        };
+    if (vehicleFields.includes(name)) {
+      updatedForm.injured.vehicle[name] = upperValue;
+      continue;
+    }
+
+    if (["injuredDni", "injuredName", "injuredLastName"].includes(name)) {
+      if (name === "injuredDni" && (value === "" || !/^\d+$/.test(value))) continue;
+      updatedForm.injured[name] = name === "injuredDni" ? value : upperValue;
+      continue;
+    }
+
+    let isNested = false;
+    for (const [group, fields] of Object.entries(nestedPaths)) {
+      if (fields.includes(name)) {
+        isNested = true;
+        if (group === "interveningJustice") {
+          updatedForm[group][name] = value;
+        } else if (group === "colaboration") {
+          updatedForm[group][name] = value;
+        } else {
+          updatedForm.colaboration[group][name] = value;
+        }
+        break;
       }
+    }
+    if (isNested) continue;
 
-      setForm(updatedForm);
-      validateField(name, value, setErrors, updatedForm);
-      return;
+    const toUpperFields = [
+      "area", "typeOfIntervention", "number",
+      "operator", "intervener", "modalitie", "jurisdiction"
+    ];
+    updatedForm[name] = toUpperFields.includes(name) ? upperValue : value;
+
+    // Limpieza de campos cuando typeOfIntervention cambia y no es REG LEGALES
+    if (name === "typeOfIntervention") {
+      if (upperValue !== "REG LEGALES") {
+        for (const field of regLegalFields) {
+          if (field in updatedForm.colaboration.colaborationFirm) {
+            updatedForm.colaboration.colaborationFirm[field] = "";
+          } else if (field in updatedForm.colaboration.colaborationWatch) {
+            updatedForm.colaboration.colaborationWatch[field] = "";
+          } else if (field in updatedForm.colaboration.rangeTime) {
+            updatedForm.colaboration.rangeTime[field] = "";
+          } else if (field in updatedForm.colaboration) {
+            updatedForm.colaboration[field] = "";
+          }
+        }
+      }
     }
   }
-
-  // Campo plano
-  updatedForm = {
-    ...form,
-    [name]: value,
-  };
 
   setForm(updatedForm);
-  validateField(name, value, setErrors, updatedForm);
-
-  // Si se cambia el tipo de intervención
-  if (name === "typeOfIntervention") {
-    if (upperValue === "REG LEGALES") {
-      const newErrors = {};
-      regLegalFields.forEach(field => {
-        const currentValue = getFieldValue(field, updatedForm);
-        const errorObj = validations(field, currentValue, updatedForm);
-        if (errorObj[field]) {
-          newErrors[field] = errorObj[field];
-        }
-      });
-      setErrors(prev => ({
-        ...prev,
-        ...newErrors,
-      }));
-    } else {
-      setErrors(prev => {
-        const updatedErrors = { ...prev };
-        regLegalFields.forEach(field => {
-          delete updatedErrors[field];
-        });
-        return updatedErrors;
-      });
-    }
-  }
-};
-
-const getFieldValue = (field, form) => {
-  const colaboration = form.colaboration || {};
-  const firm = colaboration.colaborationFirm || {};
-  const watch = colaboration.colaborationWatch || {};
-  const range = colaboration.rangeTime || {};
-
-  if (firm[field] !== undefined) return firm[field];
-  if (watch[field] !== undefined) return watch[field];
-  if (range[field] !== undefined) return range[field];
-  if (colaboration[field] !== undefined) return colaboration[field];
-  if (form[field] !== undefined) return form[field];
-  return "";
-};
-
-const validateField = (name, value, setErrors, form) => {
-  const validationErrors = validations(name, value, form);
-  setErrors(prev => ({
-    ...prev,
-    [name]: validationErrors[name],
-  }));
 };
 
 export default handleInputChange;

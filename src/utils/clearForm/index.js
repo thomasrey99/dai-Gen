@@ -19,7 +19,13 @@ export function clearForm({
       injured: {
         injuredName: "",
         injuredLastName: "",
-        injuredDni: ""
+        injuredDni: "",
+        vehicle: {
+          brand: "",
+          model: "",
+          color: "",
+          domain: ""
+        }
       },
       colaboration: {
         colaborationFirm: {
@@ -54,7 +60,7 @@ export function clearForm({
       modalitie: '',
       operator: '',
       intervener: '',
-      review: '',
+      review: ''
     });
 
     setErrors({

@@ -11,8 +11,12 @@ export default function ColaborationSection({
 }) {
     return (
         <>
+            <p
+                className='my-6 text-warning font-bold'
+            >Oficio</p>
             <section
                 className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                 <div>
                     <InputText
                         rule={"Caratula que figura en la nota"}

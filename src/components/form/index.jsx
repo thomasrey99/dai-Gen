@@ -54,8 +54,8 @@ export default function Excel({
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  
-  const handleChange=handleInputChange(form, setForm, setErrors)
+
+  const handleChange = handleInputChange(form, setForm, setErrors)
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -153,20 +153,24 @@ export default function Excel({
             handleChange={handleChange}
           />
         </AccordionItem>
-        <AccordionItem
-          label="Colaboracion"
-          title="Colaboracion"
-          isDisabled={form.typeOfIntervention !== "REG LEGALES"} key={"Colaboracion"}
-          classNames={{ subtitle: "text-danger" }}
-          subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Revisar" : ""}
-        >
-          {/*Grupo de colaboracion*/}
-          <ColaborationSection
-            form={form}
-            errors={errors}
-            handleChange={handleChange}
-          />
-        </AccordionItem>
+        {
+          form.typeOfIntervention === "REG LEGALES"
+          &&
+            <AccordionItem
+              label="Colaboracion"
+              title="Colaboracion"
+              isDisabled={form.typeOfIntervention !== "REG LEGALES"} key={"Colaboracion"}
+              classNames={{ subtitle: "text-danger" }}
+              subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Revisar" : ""}
+            >
+              {/*Grupo de colaboracion*/}
+              <ColaborationSection
+                form={form}
+                errors={errors}
+                handleChange={handleChange}
+              />
+            </AccordionItem>
+        }
         <AccordionItem
           aria-label="Direccion / fecha / hora"
           title="Direccion / fecha / hora"
