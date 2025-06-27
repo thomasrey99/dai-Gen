@@ -43,6 +43,7 @@ export const operatorsList = [
     "OLIVA",
     "PALACIOS",
     "PALLADINO",
+    "PAPANDREA",
     "PEREIRA",
     "PEREZ",
     "PRESTE",
