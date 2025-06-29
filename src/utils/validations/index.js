@@ -82,7 +82,7 @@ export const validations = (name, value, form = {}) => {
     case "cover":
     case "modalitie":
       if (value && !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\/.\s()º-]+$/.test(value)) {
-        errors[name] = "Solo se permiten letras, números y '/'";
+        errors[name] = "Solo se permiten letras, números, '()', 'º' '/' y '.'";
       }
       break;
 
