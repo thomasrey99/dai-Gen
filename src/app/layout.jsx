@@ -23,7 +23,7 @@ export const metadata = {
   title: "DAI Gen",
   description: "Aplicacion para automatizacion exclusiva de la Policia de la ciudad",
   icons: {
-    icon: "/logo.png",
+    icon: "/dai.png",
   },
 };
 
