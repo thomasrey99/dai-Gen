@@ -11,11 +11,10 @@ const InputText = ({ isRequired, name, label, handleChange, value, rule }) => {
             >
                 <Input
                     isRequired={isRequired || false}
-                    className="w-full"
+                    className="w-full mt-2"
                     name={name}
                     onChange={handleChange}
                     value={value === null ? "" : value}
-                    label={label}
                     type="text"
                     variant="flat"
                 />

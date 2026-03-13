@@ -20,11 +20,10 @@ const InputDate = ({ isRequired, value, handleChange, label, rule }) => {
             >
                 <DatePicker
                     isRequired={isRequired}
-                    className='w-full'
+                    className='w-full mt-2'
                     variant='flat'
                     value={value || null}
                     onChange={onHandleChange}
-                    label={label}
                 /></Tooltip>
         </I18nProvider>
     );

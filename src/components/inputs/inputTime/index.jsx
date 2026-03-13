@@ -35,12 +35,11 @@ const InputTime = ({ isRequired, label, name, value, handleChange, rule }) => {
                     startContent={
                         <ClockCircleLinearIcon className="text-xl text-default-400 pointer-events-none flex-shrink-0" />
                     }
-                    className="w-full"
+                    className="w-full mt-2"
                     variant="flat"
                     value={value ? parseTime(value) : null} // convierte el string a TimeValue
                     name={name}
                     granularity="second"
-                    label={label}
                     hourCycle={24}
                     onChange={(newValue) => {
                         if (newValue) {

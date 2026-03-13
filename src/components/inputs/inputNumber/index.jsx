@@ -10,8 +10,7 @@ const InputNumber = ({rule, name = "", label = "", value = "", setValue, isRequi
             <NumberInput
                 maxLength={9}
                 isRequired={isRequired}
-                className="w-full"
-                label={label}
+                className="w-full mt-2"
                 value={value}
                 onChange={setValue}
                 name={name}

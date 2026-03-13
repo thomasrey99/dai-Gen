@@ -21,8 +21,7 @@ export default function AutocompleteInput({
                 <Autocomplete
                     isRequired={isRequired}
                     allowsCustomValue
-                    label={label}
-                    className="w-full"
+                    className="w-full mt-2"
                     name={name}
                     defaultItems={data}
                     inputValue={value ?? ""}
@@ -31,7 +30,7 @@ export default function AutocompleteInput({
                     variant="flat"
                 >
                     {data.map((item) => (
-                        <AutocompleteItem key={item} textValue={item}>
+                        <AutocompleteItem key={item} textValue={item} className="text-sm">
                             {item}
                         </AutocompleteItem>
                     ))}

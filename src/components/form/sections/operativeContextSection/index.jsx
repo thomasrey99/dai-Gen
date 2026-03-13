@@ -14,6 +14,7 @@ export default function OperativeContextSection({
                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
                 <div>
+                    <label>Modalidad</label>
                     <AutocompleteInput
                         isRequired={true}
                         error={errors.modalitie}
@@ -30,6 +31,7 @@ export default function OperativeContextSection({
                 </div>
 
                 <div>
+                    <label>Dependencia</label>
                     <AutocompleteInput
                         rule={"Seleccionar o tipear una dependencia"}
                         label='Dependencia'

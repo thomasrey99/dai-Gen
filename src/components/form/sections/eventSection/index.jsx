@@ -10,6 +10,7 @@ export default function EventSection({ form, errors, handleChange }) {
     <>
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
+          <label>Area</label>
           <AutocompleteInput
             isRequired
             error={errors.area}
@@ -25,6 +26,7 @@ export default function EventSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Tipo de  intervencion</label>
           <AutocompleteInput
             isRequired
             error={errors.typeOfIntervention}
@@ -40,6 +42,7 @@ export default function EventSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Nombre / N°</label>
           <InputText
             isRequired
             error={errors.number}
