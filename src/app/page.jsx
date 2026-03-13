@@ -148,7 +148,7 @@ const ExcelModifier = () => {
       <div className="relative z-10 w-full flex flex-col min-h-screen">
         <header className="w-full px-6 py-8 flex flex-col xl:flex-row gap-4 items-center justify-between xl:max-w-7xl mx-auto">
           <div className="flex sm:mb-6 xl:mb-0 flex-col xl:flex-row gap-4 items-center justify-start">
-            <Image src="/logo.png" alt="deai logo" width={150} height={150} />
+            <Image src="/logo.png" alt="dai logo" width={150} height={150} />
             <h1 className="text-5xl font-extrabold tracking-wide bg-gradient-to-r from-sky-400 via-sky-200 to-sky-600 bg-[length:300%_300%] bg-clip-text text-transparent animate-glow">
               DAI GEN
             </h1>

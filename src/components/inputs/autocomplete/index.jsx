@@ -11,7 +11,6 @@ export default function AutocompleteInput({
 }) {
     const handleSelectionChange = (selectedKey) => {
         const selectedValue = selectedKey ?? "";
-        console.log("seleccionado:", selectedValue)
         setValue({ name, value: selectedValue });
     };
 
