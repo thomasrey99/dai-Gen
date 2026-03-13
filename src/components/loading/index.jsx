@@ -4,7 +4,7 @@ const Loading = () => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-black">
       <Image
-        src="/logo.png"
+        src="/dai.png"
         width={200}
         height={200}
         alt="DAI logo"
