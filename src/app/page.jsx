@@ -18,6 +18,7 @@ const ExcelModifier = () => {
     area: null,
     typeOfIntervention: null,
     number: null,
+    origin:null,
     injured: {
       injuredName: "",
       injuredLastName: "",

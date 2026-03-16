@@ -13,6 +13,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
+          <label>Caratula</label>
           <InputText
             rule={"Caratula que figura en la nota"}
             name={"cover"}
@@ -26,6 +27,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Nº Sumario</label>
           <InputText
             rule={"Nº de sumario que figura en la nota"}
             name={"summaryNum"}
@@ -45,6 +47,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
+          <label>Desde</label>
           <InputTime
             rule={"Solo tipear hh:mm:ss (se formatea solo)"}
             name={"initTime"}
@@ -57,6 +60,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Hasta</label>
           <InputTime
             rule={"Solo tipear hh:mm:ss (se formatea solo)"}
             name={"endTime"}
@@ -75,6 +79,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
+          <label>Jerarquia</label>
           <AutocompleteInput
             rule={"Jerarquia del personal que firmo la nota"}
             label="Jerarquia"
@@ -88,6 +93,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>L.P.</label>
           <InputText
             rule={"L.P. del personal que firmo la nota"}
             error={errors.colabFirmLp}
@@ -102,6 +108,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Nombres</label>
           <InputText
             rule={"Nombres del personal que firmo la nota"}
             name={"colabFirmNames"}
@@ -115,6 +122,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Apellidos</label>
           <InputText
             rule={"Apellidos del personal que firmo la nota"}
             name={"colabFirmLastNames"}
@@ -134,6 +142,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
+          <label>Jerarquia</label>
           <AutocompleteInput
             rule={"Jerarquia del personal que va a visualizar"}
             label="Jerarquia"
@@ -147,6 +156,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>L.P.</label>
           <InputText
             rule={"L.P. del personal que va a visualizar"}
             error={errors.colabWatchLp}
@@ -161,6 +171,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Nombres</label>
           <InputText
             rule={"Nombres del personal que va a visualizar"}
             name={"colabWatchNames"}
@@ -174,6 +185,7 @@ export default function ColaborationSection({ form, errors, handleChange }) {
         </div>
 
         <div>
+          <label>Apellidos</label>
           <InputText
             rule={"Apellidos del personal que va a visualizar"}
             name={"colabWatchLastNames"}

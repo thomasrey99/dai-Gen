@@ -1,4 +1,6 @@
 import { areasList } from "../data/areas";
+import { originsList } from "../data/origins";
+import { typesOfInterventionList } from "../data/typeOfInterventions";
 
 export const validations = (name, value, form = {}) => {
   const errors = {};
@@ -33,6 +35,7 @@ export const validations = (name, value, form = {}) => {
   const isRequired =
     requiredFields.includes(name) ||
     (name === "callTime" && form?.typeOfIntervention !== "REG LEGALES") ||
+    (name === "origin" && form?.typeOfIntervention === "SAE") ||
     (form?.typeOfIntervention === "REG LEGALES" &&
       requiredIfRegLegales.includes(name));
 
@@ -59,6 +62,22 @@ export const validations = (name, value, form = {}) => {
       if (valStr && !areasList.includes(valStr)) {
         const areas = areasList.join(", ");
         errors[name] = "Opción inválida, disponibles: " + areas;
+      }
+      break;
+    }
+    case "typeOfIntervention": {
+      const valStr = typeof value === "string" ? value.trim() : "";
+      if (valStr && !typesOfInterventionList.includes(valStr)) {
+        const types = typesOfInterventionList.join(", ");
+        errors[name] = "Opción inválida, disponibles: " + types;
+      }
+      break;
+    }
+    case "origin": {
+      const valStr = typeof value === "string" ? value.trim() : "";
+      if (valStr && !originsList.includes(valStr)) {
+        const origins = originsList.join(", ");
+        errors[name] = "Opción inválida, disponibles: " + origins;
       }
       break;
     }

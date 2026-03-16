@@ -4,11 +4,12 @@ import InputText from "@/components/inputs/inputText";
 import ErrorMessage from "@/components/errorMessage";
 import { areasList } from "@/utils/data/areas";
 import { typesOfInterventionList } from "@/utils/data/typeOfInterventions";
+import { originsList } from "@/utils/data/origins";
 
 export default function EventSection({ form, errors, handleChange }) {
   return (
     <>
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className={`grid grid-cols-1 md:${form.typeOfIntervention == "SAE" ? "grid-cols-4": "grid-cols-3"} gap-6`}>
         <div>
           <label>Area</label>
           <AutocompleteInput
@@ -56,6 +57,27 @@ export default function EventSection({ form, errors, handleChange }) {
           />
           <ErrorMessage error={errors.number} />
         </div>
+        {
+          form.typeOfIntervention == "SAE"
+          &&
+          (
+            <div>
+              <label>Origen</label>
+              <AutocompleteInput
+                isRequired
+                error={errors.origin}
+                rule="SAE / CMU / SISEP"
+                label="Origen"
+                data={originsList}
+                name="origin"
+                setValue={handleChange}
+                value={form.origin}
+                className="bg-black/50 border border-gray-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-white placeholder-gray-400 rounded-md transition"
+              />
+              <ErrorMessage error={errors.origin} />
+            </div>
+          )
+        }
       </section>
     </>
   );
