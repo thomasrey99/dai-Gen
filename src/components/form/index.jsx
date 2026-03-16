@@ -75,8 +75,6 @@ export default function Excel({
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const [selected, setSelected] = useState("eventSection");
-
   const handleChange = handleInputChange(form, setForm, setErrors)
 
   const onSubmit = async (e) => {
@@ -95,6 +93,7 @@ export default function Excel({
     });
 
     if (!res.ok) {
+      console.log(res)
       setIsLoading(false);
       temporaryLocationSection('error', 'Error al generar el archivo');
       return;

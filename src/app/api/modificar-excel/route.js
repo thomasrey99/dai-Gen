@@ -4,8 +4,9 @@ import path from 'path';
 export async function POST(req) {
   try {
     const data = await req.json();
-    const filePath = path.join(process.cwd(), 'public', 'planilla visualizador.xlsx');
+    const filePath = path.join(process.cwd(), 'public', 'planila visualizador 2.xlsx');
 
+    console.log(filePath)
     const workbook = await XlsxPopulate.fromFileAsync(filePath);
     const sheet = workbook.sheet('DETALLE');
 
@@ -18,6 +19,8 @@ export async function POST(req) {
 
     // Establecer valores según intervención
     let horario = data?.callTime || "";
+    let origin= data.typeOfIntervention == "SAE" ? data.origin : ""
+
     if (data.typeOfIntervention === "REG LEGALES") {
       const init = formatTime(data?.colaboration?.rangeTime?.initTime);
       const end = formatTime(data?.colaboration?.rangeTime?.endTime);
@@ -29,6 +32,9 @@ export async function POST(req) {
     sheet.cell('A2').value(data?.typeOfIntervention).style({ fontFamily: 'Calibri', bold: true, border: true });
     sheet.cell('B2').value(data?.number).style({ fontFamily: 'Calibri', bold: true, border: true });
     sheet.cell('B3').value(data?.area).style({ fontFamily: 'Calibri', bold: true, border: true });
+    if(data.typeOfIntervention =="SAE"){
+      sheet.cell('E6').value(data?.origin).style({ fontFamily: 'Calibri', bold: false, border: true });
+    }
 
     // Visualizador e interventor
     sheet.cell('B14').value(data?.operator || '').style({ fontFamily: 'Calibri', bold: true, border: true });
@@ -62,7 +68,7 @@ export async function POST(req) {
     sheet.cell('D8').value(data?.interveningJustice?.secretariat || '').style({ fontFamily: 'Calibri', bold: true, border: true });
 
     // Reseña
-    sheet.cell('B28').value(data?.review || '');
+    sheet.cell('B34').value(data?.review || '');
 
     // Fórmulas auxiliares
     sheet.cell('C9').formula('IF(ISNUMBER(FIND("COMISARIA VECINAL", B9)), SUBSTITUTE(MID(B9, FIND("VECINAL", B9) + 8, 10), " ANEXO", ""), "")');
@@ -77,19 +83,15 @@ export async function POST(req) {
     const fullName = `${data?.injured?.injuredName?.trim() || ""} ${data?.injured?.injuredLastName?.trim() || ""}`.trim();
 
     const descripcion =
-      `Fuente: ${data?.typeOfIntervention || ''} ${data?.number || ''}\n` +
-      `Hecho: ${data?.modalitie || ''}\n` +
-      `Magistrado: ${data?.interveningJustice?.justice || ''}\n` +
-      `Dependencia: ${data?.jurisdiction || ''}\n` +
-      `Fecha del hecho: ${data?.eventDate || ''}            Horario: ${horario}\n` +
-      `Dirección: ${data?.direction || ''}\n` +
-      `Vehiculo Damnificado:  Marca: ${brand} Modelo: ${model} Color: ${color} Chapa Patente: ${domain}.-\n` +
       `DNI Damnificado(sin puntos): ${dni}\n` +
+      `Vehiculo Damnificado:  Marca: ${brand} Modelo: ${model} Color: ${color} Chapa Patente: ${domain}.-\n` +
       `Nombre y Apellido Damnificado/s: ${fullName}`;
 
-    sheet.cell('B27').value(descripcion).style({ wrapText: true });
+    sheet.cell('B33').value(descripcion).style({ wrapText: true });
 
     const buffer = await workbook.outputAsync();
+
+    console.log("este es el buffer: ", buffer)
 
     return new Response(buffer, {
       headers: {

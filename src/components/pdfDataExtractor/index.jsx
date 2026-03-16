@@ -92,6 +92,7 @@ const PdfReader = ({
         area: null,
         typeOfIntervention: null,
         number: null,
+        origin:null,
         injured: {
           injuredName: "",
           injuredLastName: "",
@@ -173,6 +174,7 @@ const PdfReader = ({
         area: null,
         typeOfIntervention: null,
         number: parsed.number || '',
+        origin:null,
         injured: {
           injuredName: parsed.injuredName || '',
           injuredLastName: parsed.injuredLastName || '',
