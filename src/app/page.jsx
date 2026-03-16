@@ -99,6 +99,7 @@ const ExcelModifier = () => {
       Object.entries(rawErrors).filter(([_, v]) => v && v.trim() !== '')
     );
     setErrors(filteredErrors);
+    console.log(errors)
   }, [form]);
 
   useEffect(() => {

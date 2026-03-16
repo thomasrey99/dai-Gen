@@ -8,7 +8,6 @@ export const validations = (name, value, form = {}) => {
     "typeOfIntervention",
     "number",
     "eventDate",
-    "callTime",
     "direction",
     "modalitie",
     "operator",
@@ -28,11 +27,12 @@ export const validations = (name, value, form = {}) => {
     "initTime",
     "endTime",
     "cover",
-    "summaryNum"
+    "summaryNum",
   ];
 
   const isRequired =
     requiredFields.includes(name) ||
+    (name === "callTime" && form?.typeOfIntervention !== "REG LEGALES") ||
     (form?.typeOfIntervention === "REG LEGALES" &&
       requiredIfRegLegales.includes(name));
 
@@ -47,7 +47,6 @@ export const validations = (name, value, form = {}) => {
 
       errors[name] = isValidDateObject ? "" : "Campo requerido";
     } else {
-      // Aquí aseguramos que value sea string antes de hacer trim
       const valStr = typeof value === "string" ? value : "";
       errors[name] = valStr.trim() === "" ? "Campo requerido" : "";
     }
@@ -55,15 +54,14 @@ export const validations = (name, value, form = {}) => {
 
   // Validaciones específicas
   switch (name) {
-    case "area":
-      {
-        const valStr = typeof value === "string" ? value.trim() : "";
-        if (valStr && !areasList.includes(valStr)) {
-          const areas = areasList.join(", ");
-          errors[name] = "Opción inválida, disponibles: " + areas;
-        }
+    case "area": {
+      const valStr = typeof value === "string" ? value.trim() : "";
+      if (valStr && !areasList.includes(valStr)) {
+        const areas = areasList.join(", ");
+        errors[name] = "Opción inválida, disponibles: " + areas;
       }
       break;
+    }
 
     case "operator":
     case "intervener":
@@ -75,14 +73,16 @@ export const validations = (name, value, form = {}) => {
     case "fiscal":
     case "secretariat":
       if (value && !/^(DR\.|DRA\.)\s[A-ZÁÉÍÓÚÑ\s]+$/.test(value)) {
-        errors[name] = "Debe comenzar con 'DR.' o 'DRA.' y contener solo mayúsculas";
+        errors[name] =
+          "Debe comenzar con 'DR.' o 'DRA.' y contener solo mayúsculas";
       }
       break;
 
     case "cover":
     case "modalitie":
       if (value && !/^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\/.\s()º-]+$/.test(value)) {
-        errors[name] = "Solo se permiten letras, números, '()', 'º' '/' y '.'";
+        errors[name] =
+          "Solo se permiten letras, números, '()', 'º' '/' y '.'";
       }
       break;
 
