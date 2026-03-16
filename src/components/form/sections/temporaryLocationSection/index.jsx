@@ -18,7 +18,7 @@ export default function TemporaryLocationSection({
                     } gap-6`}
             >
                 <div>
-                    <label>Direccion</label>
+                    <label htmlFor="direction">Direccion</label>
                     <AddressAutocomplete
                         rule={"Texto capitalizado. (Ej: Monteagudo 1269 o Avenida Corrientes y Avenida 9 de Julio)"}
                         setValue={handleChange}
@@ -30,7 +30,7 @@ export default function TemporaryLocationSection({
                 </div>
 
                 <div>
-                    <label>Fecha del hecho</label>
+                    <label htmlFor="eventDate">Fecha del hecho</label>
                     <InputDate
                         rule={"Solo tipear dd/mm/aaaa (se formatea solo a dd-mm-aaaa)"}
                         value={form.eventDate}
@@ -44,7 +44,7 @@ export default function TemporaryLocationSection({
 
                 {form.typeOfIntervention !== "REG LEGALES" && (
                     <div>
-                        <label>Hora del llamado</label>
+                        <label htmlFor="callTime">Hora del llamado</label>
                         <InputTime
                             isRequired={true}
                             error={errors.callTime}

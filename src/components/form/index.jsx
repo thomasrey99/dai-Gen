@@ -13,7 +13,7 @@ import JusticeSection from './sections/justiceSection';
 import ReviewSection from './sections/reviewSection';
 import { clearForm } from '@/utils/clearForm';
 import handleInputChange from '@/utils/handlers/handleInputChange';
-import { useState } from 'react';
+import ViewErrorsModal from '../viewErrorsModal';
 
 
 export const AnchorIcon = (props) => {
@@ -60,6 +60,7 @@ const PlusIcon = (props) => {
   );
 };
 
+
 export default function Excel({
   setForm,
   form,
@@ -72,6 +73,71 @@ export default function Excel({
   setDataObject,
   setFileName
 }) {
+  const sectionHasErrors = (fields) => {
+    return fields.some((field) => errors[field]);
+  };
+
+  const getTitle = (text, hasErrors) => (
+    <span className={`flex items-center gap-2 ${hasErrors ? "text-warning" : "text-success"}`}>
+      {text}
+      {!hasErrors && <span className="text-emerald-400 font-bold">✔</span>}
+    </span>
+  );
+
+  const eventErrors = sectionHasErrors([
+    "area",
+    "typeOfIntervention",
+    "number",
+    "origin"
+  ]);
+
+  const operatorErrors = sectionHasErrors([
+    "operator",
+    "intervener"
+  ]);
+
+  const injuredErrors = sectionHasErrors([
+    "injuredName",
+    "injuredLastName",
+    "injuredDni"
+  ]);
+
+  const colaborationErrors = sectionHasErrors([
+    "cover",
+    "summaryNum",
+    "initTime",
+    "endTime",
+    "colabFirmHierarchy",
+    "colabFirmLp",
+    "colabFirmNames",
+    "colabFirmLastNames",
+    "colabWatchHierarchy",
+    "colabWatchLp",
+    "colabWatchNames",
+    "colabWatchLastNames"
+  ]);
+
+  const locationErrors = sectionHasErrors([
+    "direction",
+    "eventDate",
+    "callTime"
+  ]);
+
+  const operativeErrors = sectionHasErrors([
+    "modalitie",
+    "jurisdiction"
+  ]);
+
+  const justiceErrors = sectionHasErrors([
+    "justice",
+    "fiscal",
+    "secretariat"
+  ]);
+
+  const reviewErrors = sectionHasErrors([
+    "review"
+  ]);
+
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -116,6 +182,8 @@ export default function Excel({
 
   const incomplete = hasFormErrors(errors);
 
+  console.log(errors)
+
   return (
     <form
       onSubmit={onSubmit}
@@ -145,46 +213,33 @@ export default function Excel({
         className="shadow-none custom-accordion"
         selectionMode="multiple"
       >
-        {/* Secciones */}
+
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Área / Tipo / Nº"
+          title={getTitle("Área / Tipo / Nº", eventErrors)}
           key="Area / Tipo / Nº"
-          subtitle={(errors.area || errors.typeOfIntervention || errors.number) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={eventErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <EventSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
-
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Visualizador / Interventor"
+          title={getTitle("Visualizador / Interventor", operatorErrors)}
           key="Visualizador / interventor"
-          subtitle={(errors.operator || errors.intervener) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={operatorErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <OperatorSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Datos del Damnificado"
+          title={getTitle("Datos del Damnificado", injuredErrors)}
           key="Datos del damnificado"
-          subtitle={(errors.injuredName || errors.injuredLastName || errors.injuredDni) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={injuredErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <InjuredSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
@@ -192,14 +247,10 @@ export default function Excel({
         {form.typeOfIntervention === "REG LEGALES" && (
           <AccordionItem
             indicator={<PlusIcon />}
-            title="Colaboración"
+            title={getTitle("Colaboración", colaborationErrors)}
             key="Colaboracion"
-            subtitle={(errors.cover || errors.summaryNum || errors.initTime || errors.endTime || errors.colabFirmHierarchy || errors.colabFirmLp || errors.colabFirmNames || errors.colabFirmLastNames || errors.colabWatchHierarchy || errors.colabWatchLp || errors.colabWatchNames || errors.colabWatchLastNames) ? "Hay errores" : ""}
-            classNames={{
-              subtitle: "text-danger",
-              title: "text-lg",
-              content: "pb-6"  // Aquí agregás padding a la sección desplegada
-            }}
+            subtitle={colaborationErrors ? "Hay errores" : ""}
+            classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
           >
             <ColaborationSection form={form} errors={errors} handleChange={handleChange} />
           </AccordionItem>
@@ -207,101 +258,79 @@ export default function Excel({
 
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Dirección / Fecha / Hora"
+          title={getTitle("Dirección / Fecha / Hora", locationErrors)}
           key="Direccion / fecha / hora"
-          subtitle={(errors.direction || errors.eventDate || errors.callTime) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={locationErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <TemporaryLocationSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Modalidad / Dependencia"
+          title={getTitle("Modalidad / Dependencia", operativeErrors)}
           key="Modalidad / Dependencia"
-          subtitle={(errors.modalitie || errors.jurisdiction) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={operativeErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <OperativeContextSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Justicia Interventora"
+          title={getTitle("Justicia Interventora", justiceErrors)}
           key="Justicia interventora"
-          subtitle={(errors.justice || errors.fiscal || errors.secretariat) ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "pb-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={justiceErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "pb-6" }}
         >
           <JusticeSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
 
         <AccordionItem
           indicator={<PlusIcon />}
-          title="Reseña"
+          title={getTitle("Reseña", reviewErrors)}
           key="review"
-          subtitle={errors.review ? "Hay errores" : ""}
-          classNames={{
-            subtitle: "text-danger",
-            title: "text-lg",
-            content: "py-6"  // Aquí agregás padding a la sección desplegada
-          }}
+          subtitle={reviewErrors ? "Hay errores" : ""}
+          classNames={{ subtitle: "text-danger", title: "text-lg", content: "py-6" }}
         >
           <ReviewSection form={form} errors={errors} handleChange={handleChange} />
         </AccordionItem>
+
       </Accordion>
 
       {/* BOTONES */}
       <div className="flex flex-col md:flex-row gap-4 mt-8">
         <Button
           color="primary"
-          variant="ghost"
           type="submit"
           isDisabled={incomplete || loading}
           className={`
-            w-full md:w-auto
-            px-6 py-3 rounded-xl font-semibold text-lg
-            transition-colors duration-300
             ${incomplete || loading
               ? "bg-gray-700 text-gray-400 cursor-not-allowed"
               : "bg-sky-600 hover:bg-sky-700 text-white shadow-lg"
             }
-            focus:outline-none focus:ring-4 focus:ring-sky-400 focus:ring-opacity-50
           `}
         >
           Generar Excel
         </Button>
 
         <Button
-          color="success"
-          variant="ghost"
+          color="warning"
           onPress={() => onOpenChange(true)}
-          className="
-            w-full md:w-auto
-            px-6 py-3 rounded-xl font-semibold text-lg
-            bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg
-            transition-colors duration-300
-            focus:outline-none focus:ring-4 focus:ring-emerald-400 focus:ring-opacity-50
-          "
+          
         >
           Limpiar Campos
         </Button>
+        {
+          incomplete && (
+          <ViewErrorsModal errors={errors}/>
+          )
+        }
       </div>
 
 
       <ModalConfirm
-        text="¿Desea limpiar todos los campos del formulario?"
+        text="¿Desea limpiar todos los campos del formqulario?"
         title="Limpiar campos"
         action={() => clearForm({
           onOpenChange,

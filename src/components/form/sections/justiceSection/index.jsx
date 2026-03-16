@@ -12,7 +12,7 @@ export default function JusticeSection({
         <>
             <section className="flex flex-col md:block">
                 <div className="w-full mb-6">
-                    <label>Justicia</label>
+                    <label htmlFor="justice">Justicia</label>
                     <AutocompleteInput
                         rule={"Seleccionar o tipear la Justicia que intervino"}
                         label="Justicia"
@@ -26,7 +26,7 @@ export default function JusticeSection({
 
                 <div className="flex flex-col gap-6 md:flex-row">
                     <div className="w-full md:w-1/2">
-                        <label>Fiscal</label>
+                        <label htmlFor="fiscal">Fiscal</label>
                         <InputText
                             rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
                             error={errors.fiscal}
@@ -40,7 +40,7 @@ export default function JusticeSection({
                     </div>
 
                     <div className="w-full md:w-1/2">
-                        <label>Secretaria</label>
+                        <label htmlFor="secretariat">Secretaria</label>
                         <InputText
                             rule={"Debe estar en mayúscula, con el prefijo DR. o DRA."}
                             error={errors.secretariat}

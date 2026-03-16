@@ -3,6 +3,7 @@
 import ErrorMessage from "@/components/errorMessage";
 import InputText from "@/components/inputs/inputText";
 
+
 export default function InjuredSection({ form, errors, handleChange }) {
   return (
     <>
@@ -10,7 +11,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
       <p className="my-6 text-warning font-semibold text-lg border-b border-warning/50 pb-1">Datos personales</p>
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <label>Nombre</label>
+          <label htmlFor="injuredName">Nombre</label>
           <InputText
             rule={"Nombre del damnificado"}
             name={"injuredName"}
@@ -23,7 +24,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Apellido</label>
+          <label htmlFor="injuredLastName">Apellido</label>
           <InputText
             rule={"Apellido del damnificado"}
             name={"injuredLastName"}
@@ -37,7 +38,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Dni</label>
+          <label htmlFor="injuredDni">Dni</label>
           <InputText
             rule={"Dni del damnificado"}
             name={"injuredDni"}
@@ -54,7 +55,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
       <p className="my-6 text-warning font-semibold text-lg border-b border-warning/50 pb-1">Vehículo (si hay)</p>
       <section className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
         <div>
-          <label>Marca</label>
+          <label htmlFor="brand">Marca</label>
           <InputText
             rule={"Marca del vehiculo: debe estar en MAYUSCULA"}
             name={"brand"}
@@ -67,7 +68,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Modelo</label>
+          <label htmlFor="model">Modelo</label>
           <InputText
             rule={"Modelo del vehiculo: debe estar en MAYUSCULA"}
             name={"model"}
@@ -80,7 +81,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Color</label>
+          <label htmlFor="color">Color</label>
           <InputText
             rule={"Color del vehiculo: debe estar en MAYUSCULA"}
             name={"color"}
@@ -93,7 +94,7 @@ export default function InjuredSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Dominio</label>
+          <label htmlFor="domain">Dominio</label>
           <InputText
             rule={"Dominio: debe estar en MAYUSCULA"}
             name={"domain"}

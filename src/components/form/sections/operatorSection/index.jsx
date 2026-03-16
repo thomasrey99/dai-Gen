@@ -12,7 +12,7 @@ export default function OperatorSection({
         <>
             <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label>Visualizador</label>
+                    <label htmlFor="operator">Visualizador</label>
                     <AutocompleteInput
                         isRequired={true}
                         error={errors.operator}
@@ -27,7 +27,7 @@ export default function OperatorSection({
                 </div>
 
                 <div>
-                    <label>Interventor</label>
+                    <label htmlFor="intervener">Interventor</label>
                     <AutocompleteInput
                         isRequired={true}
                         error={errors.intervener}

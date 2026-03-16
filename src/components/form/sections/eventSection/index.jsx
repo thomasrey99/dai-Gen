@@ -11,7 +11,7 @@ export default function EventSection({ form, errors, handleChange }) {
     <>
       <section className={`grid grid-cols-1 md:${form.typeOfIntervention == "SAE" ? "grid-cols-4": "grid-cols-3"} gap-6`}>
         <div>
-          <label>Area</label>
+          <label htmlFor="area">Area</label>
           <AutocompleteInput
             isRequired
             error={errors.area}
@@ -27,7 +27,7 @@ export default function EventSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Tipo de  intervencion</label>
+          <label htmlFor="typeOfIntervention">Tipo de  intervencion</label>
           <AutocompleteInput
             isRequired
             error={errors.typeOfIntervention}
@@ -43,7 +43,7 @@ export default function EventSection({ form, errors, handleChange }) {
         </div>
 
         <div>
-          <label>Nombre / N°</label>
+          <label htmlFor="number">Nombre / N°</label>
           <InputText
             isRequired
             error={errors.number}
@@ -62,7 +62,7 @@ export default function EventSection({ form, errors, handleChange }) {
           &&
           (
             <div>
-              <label>Origen</label>
+              <label htmlFor="origin">Origen</label>
               <AutocompleteInput
                 isRequired
                 error={errors.origin}
