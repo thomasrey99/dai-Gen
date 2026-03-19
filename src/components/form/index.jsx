@@ -323,12 +323,12 @@ const handleChange = handleInputChange(setForm)
 
     <form
       onSubmit={onSubmit}
-      className="relative overflow-hidden w-full max-w-6xl mx-auto bg-white/5 p-8 xl:p-10 gap-8 flex flex-col rounded-2xl shadow-2xl ring-1 ring-white/10 backdrop-blur-md transition-all duration-300"
+      className="relative overflow-hidden w-full max-w-6xl mx-auto bg-white/5 p-4 sm:p-6 xl:p-10 gap-8 flex flex-col rounded-2xl shadow-2xl ring-1 ring-white/10 backdrop-blur-md transition-all duration-300"
     >
 
       <div className="flex justify-between items-center">
 
-        <h2 className="text-3xl font-bold text-white">
+        <h2 className="text-xl sm:text-2xl xl:text-3xl font-bold text-white">
           Formulario de Visualización
         </h2>
 
@@ -426,9 +426,10 @@ const handleChange = handleInputChange(setForm)
       </Accordion>
 
 
-      <div className="flex gap-4 mt-6">
+      <div className="flex flex-col sm:flex-row gap-3 mt-6">
 
         <Button
+          className="w-full sm:w-auto"
           color="primary"
           type="submit"
           isDisabled={incomplete || loading}
@@ -437,6 +438,7 @@ const handleChange = handleInputChange(setForm)
         </Button>
 
         <Button
+          className="w-full sm:w-auto"
           color="warning"
           onPress={() => onOpenChange(true)}
         >

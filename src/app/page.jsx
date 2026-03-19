@@ -180,8 +180,8 @@ const ExcelModifier = () => {
           />
         </header>
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-6 pb-10">
-          <div className="bg-white/5 backdrop-blur-xs p-6 rounded-xl shadow-xl ring-1 ring-white/10">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 pb-10">
+          <div className="bg-white/5 backdrop-blur-xs p-4 sm:p-6 rounded-xl shadow-xl ring-1 ring-white/10">
             <ExcelForm
               form={form}
               setForm={setForm}
