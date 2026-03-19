@@ -66,6 +66,9 @@ export default function TemporaryLocationSection({
             >
                 {form.placeId && (
                     <Map
+                        direction={form.direction}
+                        lat={form.lat}
+                        lng={form.lng}
                         url={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_MAPS_API_KEY}&q=place_id:${form.placeId}`}
                     />
                 )}

@@ -14,6 +14,8 @@ const ExcelModifier = () => {
   const [loading, setIsLoading] = useState(false);
   const [dataObject, setDataObject] = useState(null);
 
+  const [selectedKeys, setSelectedKeys] = useState(new Set(['8']));
+  const [openAllSections, setOpenAllSections] = useState(false);
   const [form, setForm] = useState({
     area: null,
     typeOfIntervention: null,
@@ -54,6 +56,8 @@ const ExcelModifier = () => {
     callTime: '',
     direction: '',
     placeId: "",
+    lat:"",
+    lng:"",
     jurisdiction: '',
     interveningJustice: {
       justice: '',
@@ -140,6 +144,8 @@ const ExcelModifier = () => {
     }
   }, [form.typeOfIntervention]);
 
+  
+
   return (
     <div
       className="
@@ -168,6 +174,9 @@ const ExcelModifier = () => {
             fileName={fileName}
             dataObject={dataObject}
             setDataObject={setDataObject}
+            setSelectedKeys={setSelectedKeys}
+            setOpenAllSections={setOpenAllSections}
+            
           />
         </header>
 
@@ -184,6 +193,10 @@ const ExcelModifier = () => {
               setDataObject={setDataObject}
               setIsLoading={setIsLoading}
               setFileName={setFileName}
+              selectedKeys={selectedKeys}
+              setSelectedKeys={setSelectedKeys}
+              openAllSections={openAllSections}
+              setOpenAllSections={setOpenAllSections}
             />
           </div>
         </main>

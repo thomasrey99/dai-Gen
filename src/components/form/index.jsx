@@ -17,6 +17,7 @@ import ReviewSection from './sections/reviewSection';
 import { clearForm } from '@/utils/clearForm';
 import handleInputChange from '@/utils/handlers/handleInputChange';
 import ViewErrorsModal from '../viewErrorsModal';
+import { useEffect } from 'react';
 
 
 export default function Excel({
@@ -29,7 +30,11 @@ export default function Excel({
   fileInputRef,
   setPdfURL,
   setDataObject,
-  setFileName
+  setFileName, 
+  selectedKeys,
+  setSelectedKeys,
+  openAllSections,
+  setOpenAllSections
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -307,6 +312,12 @@ const handleChange = handleInputChange(setForm)
   /* ------------------------------
   UI
   ------------------------------ */
+  useEffect(() => {
+    if (openAllSections) {
+      setSelectedKeys(new Set(['1','2','3','4','5','6','7','8']));
+      setOpenAllSections(false); // 🔥 importante
+    }
+  }, [openAllSections]);
 
   return (
 
@@ -331,16 +342,16 @@ const handleChange = handleInputChange(setForm)
 
       </div>
 
-
       <Accordion
-        defaultExpandedKeys={['review']}
         selectionMode="multiple"
-        showDivider={false}
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
       >
 
         <AccordionItem
           title={getTitle("Área / Tipo / Nº", eventStatus)}
           subtitle={getSubtitle(eventStatus)}
+          key="1"
         >
           <EventSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
@@ -349,6 +360,7 @@ const handleChange = handleInputChange(setForm)
         <AccordionItem
           title={getTitle("Visualizador / Interventor", operatorStatus)}
           subtitle={getSubtitle(operatorStatus)}
+          key="2"
         >
           <OperatorSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
@@ -357,6 +369,7 @@ const handleChange = handleInputChange(setForm)
         <AccordionItem
           title={getTitle("Datos del Damnificado", injuredStatus)}
           subtitle={getSubtitle(injuredStatus)}
+          key="3"
         >
           <InjuredSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
@@ -367,6 +380,7 @@ const handleChange = handleInputChange(setForm)
           <AccordionItem
             title={getTitle("Colaboración", colaborationStatus)}
             subtitle={getSubtitle(colaborationStatus)}
+            key="4"
           >
             <ColaborationSection form={form} errors={errors} handleChange={handleChange}/>
           </AccordionItem>
@@ -377,6 +391,7 @@ const handleChange = handleInputChange(setForm)
         <AccordionItem
           title={getTitle("Dirección / Fecha / Hora", locationStatus)}
           subtitle={getSubtitle(locationStatus)}
+          key="5"
         >
           <TemporaryLocationSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
@@ -385,6 +400,7 @@ const handleChange = handleInputChange(setForm)
         <AccordionItem
           title={getTitle("Modalidad / Dependencia", operativeStatus)}
           subtitle={getSubtitle(operativeStatus)}
+          key="6"
         >
           <OperativeContextSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
@@ -393,13 +409,14 @@ const handleChange = handleInputChange(setForm)
         <AccordionItem
           title={getTitle("Justicia Interventora", justiceStatus)}
           subtitle={getSubtitle(justiceStatus)}
+          key="7"
         >
           <JusticeSection form={form} errors={errors} handleChange={handleChange}/>
         </AccordionItem>
 
 
         <AccordionItem
-          key="review"
+          key="8"
           title={getTitle("Reseña", reviewStatus)}
           subtitle={getSubtitle(reviewStatus)}
         >

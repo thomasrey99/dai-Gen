@@ -11,7 +11,6 @@ import { Input } from '@heroui/input';
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PdfReader = ({
-  form,
   setForm,
   setIsLoading,
   fileInputRef,
@@ -20,7 +19,9 @@ const PdfReader = ({
   dataObject,
   setDataObject,
   fileName,
-  setFileName
+  setFileName,
+  setSelectedKeys,
+  setOpenAllSections
 }) => {
 
   const truncateFileName = (name, maxLength = 25) => {
@@ -128,6 +129,8 @@ const PdfReader = ({
         callTime: '',
         direction: '',
         placeId: "",
+        lat:"",
+        lng:"",
         jurisdiction: '',
         interveningJustice: {
           justice: '',
@@ -225,6 +228,8 @@ const PdfReader = ({
       setForm(newForm);
 
       ModalAlert('success', 'Datos cargados con éxito, verifica que sean correctos');
+
+      setOpenAllSections(true);
 
     } catch (error) {
       console.error('Error al extraer datos:', error);

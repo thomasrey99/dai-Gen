@@ -52,6 +52,8 @@ export function clearForm({
       callTime: '',
       direction: '',
       placeId: "",
+      lat:"",
+      lng:"",
       jurisdiction: '',
       interveningJustice: {
         justice: '',

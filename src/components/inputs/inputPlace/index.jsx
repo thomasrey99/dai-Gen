@@ -47,14 +47,17 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
         }
       );
 
-      autocomplete.setFields(["place_id", "address_components"]);
+      autocomplete.setFields(["place_id", "address_components", "geometry"]);
 
       autocomplete.addListener("place_changed", async () => {
         const place = autocomplete.getPlace();
-        if (place.place_id) {
+        if (place.place_id && place.geometry) {
           try {
             const details = await getPlaceDetails(place.place_id);
             const formattedAddress = await getFormattedAddress(details);
+            const location = place.geometry.location;
+            const lat = location.lat();
+            const lng = location.lng();
 
             // ✅ Forzamos visualmente el input (porque React lo tiene controlado)
             inputRef.current.value = formattedAddress;
@@ -72,6 +75,18 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
                   value: place.place_id,
                 },
               },
+              {
+                target: {
+                  name: "lat",
+                  value: lat,
+                },
+              },
+              {
+                target: {
+                  name: "lng",
+                  value: lng,
+                },
+              }
             ]);
           } catch (error) {
             console.error("Error al obtener los detalles del lugar:", error);

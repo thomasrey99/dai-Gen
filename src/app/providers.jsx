@@ -10,11 +10,12 @@ export function Providers({ children, themeProps }) {
   const router = useRouter();
 
   return (
-    <HeroUIProvider navigate={router.push}>
-      <NextThemesProvider {...themeProps}>
+    <NextThemesProvider {...themeProps}>
+      <HeroUIProvider navigate={router.push}>
         <ToastProvider/>
         {children}
-        </NextThemesProvider>
-    </HeroUIProvider>
+      </HeroUIProvider>
+    </NextThemesProvider>
+    
   );
 }
