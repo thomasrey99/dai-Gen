@@ -240,7 +240,7 @@ const PdfReader = ({
   };
 
   return (
-    <section className="w-full xl:max-w-2xl p-6 rounded-xl bg-white/5 shadow-lg ring-1 ring-white/10 backdrop-blur-md">
+    <section className="w-full xl:max-w-2xl p-6 rounded-xl bg-white/5 shadow-lg ring-1 ring-white/10">
       <h2 className="mb-5 text-2xl font-bold text-white tracking-wide text-center sm:text-left">
         Cargar y Extraer Datos del PDF
       </h2>

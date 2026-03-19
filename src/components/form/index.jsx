@@ -315,7 +315,7 @@ const handleChange = handleInputChange(setForm)
   useEffect(() => {
     if (openAllSections) {
       setSelectedKeys(new Set(['1','2','3','4','5','6','7','8']));
-      setOpenAllSections(false); // 🔥 importante
+      setOpenAllSections(false); 
     }
   }, [openAllSections]);
 
@@ -343,6 +343,7 @@ const handleChange = handleInputChange(setForm)
       </div>
 
       <Accordion
+       showDivider={false}
         selectionMode="multiple"
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
