@@ -33,8 +33,7 @@ export default function Excel({
 }) {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const handleChange = handleInputChange(form, setForm, setErrors)
+const handleChange = handleInputChange(setForm)
 
 
   /* ------------------------------
