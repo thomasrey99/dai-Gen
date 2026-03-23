@@ -1,5 +1,6 @@
 import { Tooltip } from "@heroui/react";
 import { useEffect, useRef } from "react";
+import { handleComponentError } from "../../../utils/error-handler";
 
 export default function AddressAutocomplete({ value, setValue, rule }) {
   const inputRef = useRef(null);
@@ -89,7 +90,7 @@ export default function AddressAutocomplete({ value, setValue, rule }) {
               }
             ]);
           } catch (error) {
-            console.error("Error al obtener los detalles del lugar:", error);
+            handleComponentError(error, 'Error al obtener detalles del lugar. Intente nuevamente.');
           }
         }
       });

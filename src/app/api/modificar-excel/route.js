@@ -1,14 +1,28 @@
 import XlsxPopulate from 'xlsx-populate';
 import path from 'path';
+import { AppError, ErrorCodes } from '../../../utils/error-handler';
 
 export async function POST(req) {
   try {
     const data = await req.json();
+
+    if (!data) {
+      throw new AppError('Datos requeridos no proporcionados', ErrorCodes.VALIDATION_ERROR, 400);
+    }
+
     const filePath = path.join(process.cwd(), 'public', 'planila visualizador 2.xlsx');
 
-    console.log(filePath)
-    const workbook = await XlsxPopulate.fromFileAsync(filePath);
+    let workbook;
+    try {
+      workbook = await XlsxPopulate.fromFileAsync(filePath);
+    } catch (fileError) {
+      throw new AppError('Archivo de plantilla no encontrado', ErrorCodes.FILE_NOT_FOUND, 500);
+    }
+
     const sheet = workbook.sheet('DETALLE');
+    if (!sheet) {
+      throw new AppError('Hoja "DETALLE" no encontrada en la plantilla', ErrorCodes.FILE_NOT_FOUND, 500);
+    }
 
     const formatTime = (time) => {
       if (typeof time === "string" && time.trim() !== "") {
@@ -33,7 +47,7 @@ export async function POST(req) {
     sheet.cell('B2').value(data?.number).style({ fontFamily: 'Calibri', bold: true, border: true });
     sheet.cell('B3').value(data?.area).style({ fontFamily: 'Calibri', bold: true, border: true });
     if(data.typeOfIntervention =="SAE"){
-      sheet.cell('E6').value(data?.origin).style({ fontFamily: 'Calibri', bold: false, border: true });
+      sheet.cell('E6').value(origin).style({ fontFamily: 'Calibri', bold: false, border: true });
     }
 
     // Visualizador e interventor
@@ -84,14 +98,12 @@ export async function POST(req) {
 
     const descripcion =
       `DNI Damnificado(sin puntos): ${dni}\n` +
-      `Vehiculo Damnificado:  Marca: ${brand} Modelo: ${model} Color: ${color} Chapa Patente: ${domain}.-\n` +
-      `Nombre y Apellido Damnificado/s: ${fullName}`;
+      `Nombre y Apellido Damnificado/s: ${fullName}\n` +
+      `Vehiculo Damnificado:  Marca: ${brand} Modelo: ${model} Color: ${color} Chapa Patente: ${domain}.-\n`;
 
     sheet.cell('B33').value(descripcion).style({ wrapText: true });
 
     const buffer = await workbook.outputAsync();
-
-    console.log("este es el buffer: ", buffer)
 
     return new Response(buffer, {
       headers: {
@@ -103,12 +115,31 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('❌ Error al generar Excel:', error);
-    return new Response(JSON.stringify({ error: 'Error al generar Excel' }), {
-      status: 500,
+
+    let statusCode = 500;
+    let message = 'Error interno del servidor';
+    let code = 'INTERNAL_ERROR';
+
+    if (error instanceof AppError) {
+      statusCode = error.statusCode;
+      message = error.userMessage;
+      code = error.code;
+    } else if (error.message) {
+      message = error.message;
+    }
+
+    return new Response(JSON.stringify({
+      success: false,
+      error: code,
+      message
+    }), {
+      status: statusCode,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
     });
   }
+
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import ExcelForm from '@/components/form';
@@ -104,7 +104,6 @@ const ExcelModifier = () => {
       Object.entries(rawErrors).filter(([_, v]) => v && v.trim() !== '')
     );
     setErrors(filteredErrors);
-    console.log(errors)
   }, [form]);
 
   useEffect(() => {

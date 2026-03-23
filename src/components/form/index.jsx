@@ -86,19 +86,24 @@ const handleChange = handleInputChange(setForm)
 
   const countIncomplete = (fields) => {
 
-    return fields.filter(field => {
+  return fields.filter(field => {
 
-      const error = getNestedValue(errors, field);
+    // 🔥 ignorar origin si no es SAE
+    if (field === "origin" && form.typeOfIntervention !== "SAE") {
+      return false;
+    }
 
-      if (error) return false;
+    const error = getNestedValue(errors, field);
 
-      const value = getNestedValue(form, field);
+    if (error) return false;
 
-      return isEmptyValue(value);
+    const value = getNestedValue(form, field);
 
-    }).length;
+    return isEmptyValue(value);
 
-  };
+  }).length;
+
+};
 
 
   /* ------------------------------
@@ -206,18 +211,18 @@ const handleChange = handleInputChange(setForm)
 
 
   const colaborationStatus = getSectionStatus([
-    "cover",
-    "summaryNum",
-    "initTime",
-    "endTime",
-    "colabFirmHierarchy",
-    "colabFirmLp",
-    "colabFirmNames",
-    "colabFirmLastNames",
-    "colabWatchHierarchy",
-    "colabWatchLp",
-    "colabWatchNames",
-    "colabWatchLastNames"
+    "colaboration.cover",
+    "colaboration.summaryNum",
+    "colaboration.rangeTime.initTime",
+    "colaboration.rangeTime.endTime",
+    "colaboration.colaborationFirm.colabFirmHierarchy",
+    "colaboration.colaborationFirm.colabFirmLp",
+    "colaboration.colaborationFirm.colabFirmNames",
+    "colaboration.colaborationFirm.colabFirmLastNames",
+    "colaboration.colaborationWatch.colabWatchHierarchy",
+    "colaboration.colaborationWatch.colabWatchLp",
+    "colaboration.colaborationWatch.colabWatchNames",
+    "colaboration.colaborationWatch.colabWatchLastNames"
   ]);
 
 

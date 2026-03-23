@@ -1,4 +1,5 @@
 import Toast from '@/components/Toast';
+import { handleComponentError } from '../error-handler';
 
 export function clearForm({
   onOpenChange,
@@ -86,6 +87,6 @@ export function clearForm({
 
     Toast("success", "Campos limpios!");
   } catch (error) {
-    Toast("error", "Error al borrar los campos");
+    handleComponentError(error, "Error al limpiar el formulario. Intente nuevamente.");
   }
 }

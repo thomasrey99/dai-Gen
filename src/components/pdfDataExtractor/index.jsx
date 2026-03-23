@@ -1,14 +1,13 @@
 'use client';
-import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
+
+import { useState } from 'react';
 import ModalAlert from '../Toast';
 import { jurisdictionsList } from '../../utils/data/jurisdictions';
 import { parseDate } from '@internationalized/date';
 import { Button } from '@heroui/button';
 import { Link } from '@heroui/link';
 import { Input } from '@heroui/input';
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+import { handleComponentError } from '../../utils/error-handler';
 
 const PdfReader = ({
   setForm,
@@ -16,84 +15,51 @@ const PdfReader = ({
   fileInputRef,
   pdfURL,
   setPdfURL,
-  dataObject,
-  setDataObject,
   fileName,
   setFileName,
-  setSelectedKeys,
   setOpenAllSections
 }) => {
+
+  const [file, setFile] = useState(null);
 
   const truncateFileName = (name, maxLength = 25) => {
     if (name.length <= maxLength) return name;
     return name.slice(0, maxLength - 3) + '...';
   };
 
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFileName(truncateFileName(file.name));
-      try {
-        const fileURL = URL.createObjectURL(file);
-        setPdfURL(fileURL);
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const typedArray = new Uint8Array(e.target.result);
-            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+    if (selectedFile && selectedFile.type === 'application/pdf') {
+      setFile(selectedFile);
+      setFileName(truncateFileName(selectedFile.name));
 
-            let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const content = await page.getTextContent();
-              const lines = {};
-              content.items.forEach((item) => {
-                const y = Math.floor(item.transform[5]);
-                if (!lines[y]) lines[y] = [];
-                lines[y].push(item.str);
-              });
-              const sorted = Object.keys(lines).sort((a, b) => b - a);
-              fullText += sorted.map((y) => lines[y].join(' ')).join('\n') + '\n';
-            }
-
-            setDataObject(fullText);
-          } catch {
-            ModalAlert('error', 'Error al procesar el PDF');
-            fileInputRef.current && (fileInputRef.current.value = '');
-            setPdfURL(null);
-            setDataObject(null);
-            setFileName('');
-          }
-        };
-
-        reader.readAsArrayBuffer(file);
-      } catch {
-        ModalAlert('error', 'Error al procesar el archivo');
-        fileInputRef.current && (fileInputRef.current.value = '');
-        setPdfURL(null);
-        setDataObject(null);
-        setFileName('');
-      }
+      const fileURL = URL.createObjectURL(selectedFile);
+      setPdfURL(fileURL);
     } else {
       ModalAlert('error', 'Por favor, carga un archivo PDF');
       fileInputRef.current && (fileInputRef.current.value = '');
       setPdfURL(null);
-      setDataObject(null);
+      setFile(null);
       setFileName('');
     }
   };
 
   const handleSubmit = async () => {
     try {
+      if (!file) {
+        ModalAlert('error', 'No hay archivo seleccionado');
+        return;
+      }
+
       setIsLoading(true);
 
-      // Limpio el form actual
+      // Reset form
       setForm({
         area: null,
         typeOfIntervention: null,
         number: null,
-        origin:null,
+        origin: null,
         injured: {
           injuredName: "",
           injuredLastName: "",
@@ -129,8 +95,8 @@ const PdfReader = ({
         callTime: '',
         direction: '',
         placeId: "",
-        lat:"",
-        lng:"",
+        lat: "",
+        lng: "",
         jurisdiction: '',
         interveningJustice: {
           justice: '',
@@ -143,29 +109,35 @@ const PdfReader = ({
         review: ''
       });
 
-      // Llamada a la API para extraer datos del PDF
+      // 🔥 Enviar archivo al backend
+      const formData = new FormData();
+      formData.append('file', file);
+
       const res = await fetch(process.env.NEXT_PUBLIC_EXTRACT_DATA, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: dataObject }),
+        body: formData,
       });
 
-      const data = await res.json();
-      if (!data?.response) throw new Error('Respuesta vacía del servidor');
+      if (!res.ok) {
+        throw new Error(`Error del servidor: ${res.status} ${res.statusText}`);
+      }
 
-      const parsed =
-        typeof data.response === 'string'
-          ? JSON.parse(data.response)
-          : data.response;
+      const data = await res.json();
+
+      if (!data?.response) {
+        throw new Error('Respuesta vacía o inválida del servidor');
+      }
+
+      const parsed = data.response;
 
       if (parsed?.message) {
         ModalAlert('error', parsed.message);
         fileInputRef.current && (fileInputRef.current.value = '');
         setPdfURL(null);
-        setDataObject(null);
+        setFile(null);
         setFileName('');
         setIsLoading(false);
-        return false;
+        return;
       }
 
       const validJurisdiction =
@@ -177,7 +149,7 @@ const PdfReader = ({
         area: null,
         typeOfIntervention: null,
         number: parsed.number || '',
-        origin:null,
+        origin: null,
         injured: {
           injuredName: parsed.injuredName || '',
           injuredLastName: parsed.injuredLastName || '',
@@ -228,12 +200,15 @@ const PdfReader = ({
       setForm(newForm);
 
       ModalAlert('success', 'Datos cargados con éxito, verifica que sean correctos');
-
       setOpenAllSections(true);
 
     } catch (error) {
-      console.error('Error al extraer datos:', error);
-      ModalAlert('error', 'Error inesperado al procesar el archivo');
+      handleComponentError(error, 'Error al procesar el archivo PDF');
+      // Reset file state on error
+      fileInputRef.current && (fileInputRef.current.value = '');
+      setPdfURL(null);
+      setFile(null);
+      setFileName('');
     } finally {
       setIsLoading(false);
     }
@@ -246,18 +221,15 @@ const PdfReader = ({
       </h2>
 
       <div className="flex flex-col xl:flex-row gap-4">
-        {/* Input archivo */}
         <div className="w-full xl:w-1/3">
           <Input
             type="file"
             accept="application/pdf"
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="text-white placeholder:text-gray-400"
           />
         </div>
 
-        {/* Nombre archivo */}
         <div className="w-full xl:w-1/3">
           <Input
             type="text"
@@ -265,17 +237,15 @@ const PdfReader = ({
             value={fileName}
             placeholder="No hay archivo seleccionado"
             title={fileName}
-            className="text-white placeholder:text-gray-400 "
           />
         </div>
 
-        {/* Botones */}
         <div className="w-full xl:w-1/3 flex flex-col xl:flex-row gap-2">
           <Button
             onPress={handleSubmit}
-            isDisabled={!dataObject}
+            isDisabled={!file}
             className={`flex-1 py-2 rounded-xl font-semibold text-sm shadow transition
-          ${!dataObject
+              ${!file
                 ? 'bg-gray-500 cursor-not-allowed opacity-50 text-white'
                 : 'bg-sky-600 hover:bg-sky-700 text-white'
               }`}
@@ -295,7 +265,6 @@ const PdfReader = ({
         </div>
       </div>
     </section>
-
   );
 };
 

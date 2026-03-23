@@ -34,7 +34,6 @@ body {
   animation: glow 4s ease-in-out infinite;
 }
 
-
 @keyframes pulseSmooth {
 
   0%,
@@ -64,6 +63,7 @@ body {
   40% {
     opacity: 1;
   }
+  
 }
 
 .loading-dot {
